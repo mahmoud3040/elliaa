@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Product } from '@/data/products';
 import { supabase } from '@/lib/supabase';
@@ -72,7 +71,6 @@ export const useProducts = () => {
     try {
       // Transform frontend format to database format
       const dbProduct = {
-        id: product.id,
         name: product.name,
         description: product.description,
         price: product.price,
@@ -91,9 +89,7 @@ export const useProducts = () => {
         rating: product.rating,
         reviews: product.reviews,
         review_count: product.reviewCount,
-        dimensions: product.dimensions,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        dimensions: product.dimensions
       };
 
       const { data, error } = await supabase
