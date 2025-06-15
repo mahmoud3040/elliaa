@@ -3,110 +3,125 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { X, Upload, Save, ArrowRight } from 'lucide-react';
+import { X, Save, Package, Upload } from 'lucide-react';
 import { categories } from '@/data/products';
 
 interface ProductFormProps {
   product?: any;
   onClose: () => void;
+  onSave: (product: any) => void;
 }
 
-const ProductForm = ({ product, onClose }: ProductFormProps) => {
+const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
   const [formData, setFormData] = useState({
+    id: '',
     name: '',
     description: '',
     price: 0,
+    originalPrice: 0,
     category: '',
-    stock: 0,
-    isNew: false,
-    isFeatured: false,
     image: '',
-    images: [] as string[],
+    stock: 0,
     sku: '',
     weight: 0,
-    dimensions: {
-      length: 0,
-      width: 0,
-      height: 0
-    }
+    isNew: false,
+    isFeatured: false,
+    isOnSale: false,
+    features: [''],
+    specifications: {}
   });
-
-  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (product) {
       setFormData({
+        id: product.id || '',
         name: product.name || '',
         description: product.description || '',
         price: product.price || 0,
+        originalPrice: product.originalPrice || 0,
         category: product.category || '',
-        stock: product.stock || 0,
-        isNew: product.isNew || false,
-        isFeatured: product.isFeatured || false,
         image: product.image || '',
-        images: product.images || [],
+        stock: product.stock || 0,
         sku: product.sku || '',
         weight: product.weight || 0,
-        dimensions: product.dimensions || { length: 0, width: 0, height: 0 }
+        isNew: product.isNew || false,
+        isFeatured: product.isFeatured || false,
+        isOnSale: product.isOnSale || false,
+        features: product.features || [''],
+        specifications: product.specifications || {}
       });
     }
   }, [product]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    
+    const productData = {
+      ...formData,
+      id: formData.id || `product_${Date.now()}`,
+      rating: product?.rating || 4.5,
+      reviews: product?.reviews || 0,
+      reviewCount: product?.reviewCount || 0,
+      images: [formData.image],
+      features: formData.features.filter(f => f.trim() !== ''),
+      dimensions: product?.dimensions || { length: 20, width: 15, height: 5 }
+    };
 
-    try {
-      // في التطبيق الحقيقي، ستحفظ في قاعدة البيانات
-      console.log('حفظ المنتج:', formData);
-      
-      // محاكاة API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      onClose();
-    } catch (error) {
-      console.error('خطأ في حفظ المنتج:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    onSave(productData);
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // في التطبيق الحقيقي، ستقوم برفع الصورة إلى خدمة التخزين
-    const file = e.target.files?.[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setFormData(prev => ({ ...prev, image: imageUrl }));
-    }
+  const updateFormData = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const addFeature = () => {
+    setFormData(prev => ({
+      ...prev,
+      features: [...prev.features, '']
+    }));
+  };
+
+  const updateFeature = (index: number, value: string) => {
+    const newFeatures = [...formData.features];
+    newFeatures[index] = value;
+    setFormData(prev => ({ ...prev, features: newFeatures }));
+  };
+
+  const removeFeature = (index: number) => {
+    const newFeatures = formData.features.filter((_, i) => i !== index);
+    setFormData(prev => ({ ...prev, features: newFeatures }));
   };
 
   return (
-    <Card className="max-w-4xl mx-auto">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle>
-          {product ? 'تعديل المنتج' : 'إضافة منتج جديد'}
-        </CardTitle>
-        <Button variant="ghost" size="sm" onClick={onClose}>
-          <X className="h-4 w-4" />
-        </Button>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center space-x-2 space-x-reverse">
+            <Package className="h-5 w-5" />
+            <span>{product ? 'تعديل المنتج' : 'إضافة منتج جديد'}</span>
+          </CardTitle>
+          <Button variant="outline" size="sm" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
       </CardHeader>
 
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Basic Information */}
             <div className="space-y-4">
               <div>
-                <Label htmlFor="name">اسم المنتج *</Label>
+                <Label htmlFor="name">اسم المنتج</Label>
                 <Input
                   id="name"
                   value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) => updateFormData('name', e.target.value)}
                   placeholder="أدخل اسم المنتج"
                   required
                 />
@@ -117,43 +132,16 @@ const ProductForm = ({ product, onClose }: ProductFormProps) => {
                 <Textarea
                   id="description"
                   value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="أدخل وصف تفصيلي للمنتج"
+                  onChange={(e) => updateFormData('description', e.target.value)}
+                  placeholder="أدخل وصف المنتج"
                   rows={4}
+                  required
                 />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="price">السعر (ج.م) *</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) => setFormData(prev => ({ ...prev, price: Number(e.target.value) }))}
-                    placeholder="0.00"
-                    min="0"
-                    step="0.01"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="stock">الكمية في المخزون</Label>
-                  <Input
-                    id="stock"
-                    type="number"
-                    value={formData.stock}
-                    onChange={(e) => setFormData(prev => ({ ...prev, stock: Number(e.target.value) }))}
-                    placeholder="0"
-                    min="0"
-                  />
-                </div>
               </div>
 
               <div>
                 <Label htmlFor="category">الفئة</Label>
-                <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
+                <Select value={formData.category} onValueChange={(value) => updateFormData('category', value)}>
                   <SelectTrigger>
                     <SelectValue placeholder="اختر الفئة" />
                   </SelectTrigger>
@@ -168,68 +156,92 @@ const ProductForm = ({ product, onClose }: ProductFormProps) => {
               </div>
 
               <div>
-                <Label htmlFor="sku">رمز المنتج (SKU)</Label>
+                <Label htmlFor="image">رابط الصورة</Label>
                 <Input
-                  id="sku"
-                  value={formData.sku}
-                  onChange={(e) => setFormData(prev => ({ ...prev, sku: e.target.value }))}
-                  placeholder="مثال: PEN-001"
+                  id="image"
+                  value={formData.image}
+                  onChange={(e) => updateFormData('image', e.target.value)}
+                  placeholder="أدخل رابط صورة المنتج"
                 />
               </div>
             </div>
 
-            {/* Product Image and Settings */}
+            {/* Pricing & Inventory */}
             <div className="space-y-4">
-              <div>
-                <Label>صورة المنتج</Label>
-                <div className="space-y-4">
-                  {formData.image && (
-                    <div className="relative">
-                      <img
-                        src={formData.image}
-                        alt="معاينة المنتج"
-                        className="w-full h-48 object-cover rounded-lg border"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute top-2 right-2"
-                        onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                  
-                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
-                    <Upload className="h-8 w-8 mx-auto mb-2 text-muted-foreground" />
-                    <p className="text-sm text-muted-foreground mb-2">
-                      اسحب صورة هنا أو انقر للاختيار
-                    </p>
-                    <Input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      className="hidden"
-                      id="image-upload"
-                    />
-                    <Label htmlFor="image-upload" className="cursor-pointer">
-                      <Button type="button" variant="outline" size="sm">
-                        اختيار صورة
-                      </Button>
-                    </Label>
-                  </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="price">السعر</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) => updateFormData('price', parseFloat(e.target.value) || 0)}
+                    placeholder="0"
+                    min="0"
+                    step="0.01"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="originalPrice">السعر الأصلي</Label>
+                  <Input
+                    id="originalPrice"
+                    type="number"
+                    value={formData.originalPrice}
+                    onChange={(e) => updateFormData('originalPrice', parseFloat(e.target.value) || 0)}
+                    placeholder="0"
+                    min="0"
+                    step="0.01"
+                  />
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="stock">المخزون</Label>
+                  <Input
+                    id="stock"
+                    type="number"
+                    value={formData.stock}
+                    onChange={(e) => updateFormData('stock', parseInt(e.target.value) || 0)}
+                    placeholder="0"
+                    min="0"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="sku">رمز المنتج (SKU)</Label>
+                  <Input
+                    id="sku"
+                    value={formData.sku}
+                    onChange={(e) => updateFormData('sku', e.target.value)}
+                    placeholder="أدخل رمز المنتج"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="weight">الوزن (جرام)</Label>
+                <Input
+                  id="weight"
+                  type="number"
+                  value={formData.weight}
+                  onChange={(e) => updateFormData('weight', parseFloat(e.target.value) || 0)}
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+
+              {/* Product Flags */}
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="isNew">منتج جديد</Label>
                   <Switch
                     id="isNew"
                     checked={formData.isNew}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isNew: checked }))}
+                    onCheckedChange={(checked) => updateFormData('isNew', checked)}
                   />
                 </div>
 
@@ -238,55 +250,53 @@ const ProductForm = ({ product, onClose }: ProductFormProps) => {
                   <Switch
                     id="isFeatured"
                     checked={formData.isFeatured}
-                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isFeatured: checked }))}
+                    onCheckedChange={(checked) => updateFormData('isFeatured', checked)}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="isOnSale">خصم خاص</Label>
+                  <Switch
+                    id="isOnSale"
+                    checked={formData.isOnSale}
+                    onCheckedChange={(checked) => updateFormData('isOnSale', checked)}
                   />
                 </div>
               </div>
+            </div>
+          </div>
 
-              <div>
-                <Label>الأبعاد والوزن</Label>
-                <div className="grid grid-cols-2 gap-2 mt-2">
+          {/* Features */}
+          <div>
+            <Label>مميزات المنتج</Label>
+            <div className="space-y-2 mt-2">
+              {formData.features.map((feature, index) => (
+                <div key={index} className="flex items-center space-x-2 space-x-reverse">
                   <Input
-                    placeholder="الطول (سم)"
-                    type="number"
-                    value={formData.dimensions.length}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      dimensions: { ...prev.dimensions, length: Number(e.target.value) }
-                    }))}
+                    value={feature}
+                    onChange={(e) => updateFeature(index, e.target.value)}
+                    placeholder="أدخل ميزة المنتج"
                   />
-                  <Input
-                    placeholder="العرض (سم)"
-                    type="number"
-                    value={formData.dimensions.width}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      dimensions: { ...prev.dimensions, width: Number(e.target.value) }
-                    }))}
-                  />
-                  <Input
-                    placeholder="الارتفاع (سم)"
-                    type="number"
-                    value={formData.dimensions.height}
-                    onChange={(e) => setFormData(prev => ({ 
-                      ...prev, 
-                      dimensions: { ...prev.dimensions, height: Number(e.target.value) }
-                    }))}
-                  />
-                  <Input
-                    placeholder="الوزن (جم)"
-                    type="number"
-                    value={formData.weight}
-                    onChange={(e) => setFormData(prev => ({ ...prev, weight: Number(e.target.value) }))}
-                  />
+                  {formData.features.length > 1 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeFeature(index)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
-              </div>
-
-              <div className="flex flex-wrap gap-2">
-                {formData.isNew && <Badge>جديد</Badge>}
-                {formData.isFeatured && <Badge variant="secondary">مميز</Badge>}
-                {formData.stock === 0 && <Badge variant="destructive">نفد من المخزون</Badge>}
-              </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addFeature}
+              >
+                إضافة ميزة جديدة
+              </Button>
             </div>
           </div>
 
@@ -295,15 +305,9 @@ const ProductForm = ({ product, onClose }: ProductFormProps) => {
             <Button type="button" variant="outline" onClick={onClose}>
               إلغاء
             </Button>
-            <Button type="submit" disabled={isLoading} className="btn-primary">
-              {isLoading ? (
-                'جاري الحفظ...'
-              ) : (
-                <>
-                  <Save className="h-4 w-4 ml-2" />
-                  {product ? 'تحديث المنتج' : 'إضافة المنتج'}
-                </>
-              )}
+            <Button type="submit" className="btn-primary">
+              <Save className="h-4 w-4 ml-2" />
+              {product ? 'تحديث المنتج' : 'حفظ المنتج'}
             </Button>
           </div>
         </form>
