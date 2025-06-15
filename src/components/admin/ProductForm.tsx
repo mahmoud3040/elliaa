@@ -7,10 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { X, Save, Package } from 'lucide-react';
+import { X, Save, Package, Loader2 } from 'lucide-react';
 import { categories } from '@/data/products';
 import { useProducts } from '@/hooks/useProducts';
-import { useToast } from '@/hooks/use-toast';
 
 interface ProductFormProps {
   product?: any;
@@ -20,7 +19,7 @@ interface ProductFormProps {
 
 const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
   const { addProduct, updateProduct } = useProducts();
-  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     id: '',
     name: '',
@@ -29,6 +28,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
     originalPrice: 0,
     category: '',
     image: '',
+    images: [''],
     stock: 0,
     sku: '',
     weight: 0,
@@ -36,7 +36,11 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
     isFeatured: false,
     isOnSale: false,
     features: [''],
-    specifications: {}
+    specifications: {},
+    rating: 4.5,
+    reviews: 0,
+    reviewCount: 0,
+    dimensions: { length: 20, width: 15, height: 5 }
   });
 
   useEffect(() => {
@@ -49,6 +53,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
         originalPrice: product.originalPrice || 0,
         category: product.category || '',
         image: product.image || '',
+        images: product.images || [''],
         stock: product.stock || 0,
         sku: product.sku || '',
         weight: product.weight || 0,
@@ -56,7 +61,11 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
         isFeatured: product.isFeatured || false,
         isOnSale: product.isOnSale || false,
         features: product.features || [''],
-        specifications: product.specifications || {}
+        specifications: product.specifications || {},
+        rating: product.rating || 4.5,
+        reviews: product.reviews || 0,
+        reviewCount: product.reviewCount || 0,
+        dimensions: product.dimensions || { length: 20, width: 15, height: 5 }
       });
     } else {
       // Reset form for new product
@@ -68,6 +77,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
         originalPrice: 0,
         category: '',
         image: '',
+        images: [''],
         stock: 0,
         sku: '',
         weight: 0,
@@ -75,40 +85,38 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
         isFeatured: false,
         isOnSale: false,
         features: [''],
-        specifications: {}
+        specifications: {},
+        rating: 4.5,
+        reviews: 0,
+        reviewCount: 0,
+        dimensions: { length: 20, width: 15, height: 5 }
       });
     }
   }, [product]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
     const productData = {
       ...formData,
       id: formData.id || `product_${Date.now()}`,
-      rating: product?.rating || 4.5,
-      reviews: product?.reviews || 0,
-      reviewCount: product?.reviewCount || 0,
       images: [formData.image],
-      features: formData.features.filter(f => f.trim() !== ''),
-      dimensions: product?.dimensions || { length: 20, width: 15, height: 5 }
+      features: formData.features.filter(f => f.trim() !== '')
     };
 
+    let success = false;
     if (product) {
-      updateProduct(productData);
-      toast({
-        title: "تم تحديث المنتج",
-        description: "تم تحديث بيانات المنتج بنجاح",
-      });
+      success = await updateProduct(productData);
     } else {
-      addProduct(productData);
-      toast({
-        title: "تم إضافة المنتج",
-        description: "تم إضافة المنتج الجديد بنجاح",
-      });
+      success = await addProduct(productData);
     }
 
-    onSave(productData);
+    if (success) {
+      onSave(productData);
+    }
+    
+    setIsLoading(false);
   };
 
   const updateFormData = (field: string, value: any) => {
@@ -141,7 +149,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
             <Package className="h-5 w-5" />
             <span>{product ? 'تعديل المنتج' : 'إضافة منتج جديد'}</span>
           </CardTitle>
-          <Button variant="outline" size="sm" onClick={onClose}>
+          <Button variant="outline" size="sm" onClick={onClose} disabled={isLoading}>
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -160,6 +168,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
                   onChange={(e) => updateFormData('name', e.target.value)}
                   placeholder="أدخل اسم المنتج"
                   required
+                  disabled={isLoading}
                 />
               </div>
 
@@ -172,12 +181,17 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
                   placeholder="أدخل وصف المنتج"
                   rows={4}
                   required
+                  disabled={isLoading}
                 />
               </div>
 
               <div>
                 <Label htmlFor="category">الفئة</Label>
-                <Select value={formData.category} onValueChange={(value) => updateFormData('category', value)}>
+                <Select 
+                  value={formData.category} 
+                  onValueChange={(value) => updateFormData('category', value)}
+                  disabled={isLoading}
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="اختر الفئة" />
                   </SelectTrigger>
@@ -198,6 +212,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
                   value={formData.image}
                   onChange={(e) => updateFormData('image', e.target.value)}
                   placeholder="أدخل رابط صورة المنتج"
+                  disabled={isLoading}
                 />
               </div>
             </div>
@@ -216,6 +231,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
                     min="0"
                     step="0.01"
                     required
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -229,6 +245,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
                     placeholder="0"
                     min="0"
                     step="0.01"
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -244,6 +261,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
                     placeholder="0"
                     min="0"
                     required
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -254,6 +272,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
                     value={formData.sku}
                     onChange={(e) => updateFormData('sku', e.target.value)}
                     placeholder="أدخل رمز المنتج"
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -267,6 +286,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
                   onChange={(e) => updateFormData('weight', parseFloat(e.target.value) || 0)}
                   placeholder="0"
                   min="0"
+                  disabled={isLoading}
                 />
               </div>
 
@@ -278,6 +298,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
                     id="isNew"
                     checked={formData.isNew}
                     onCheckedChange={(checked) => updateFormData('isNew', checked)}
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -287,6 +308,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
                     id="isFeatured"
                     checked={formData.isFeatured}
                     onCheckedChange={(checked) => updateFormData('isFeatured', checked)}
+                    disabled={isLoading}
                   />
                 </div>
 
@@ -296,6 +318,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
                     id="isOnSale"
                     checked={formData.isOnSale}
                     onCheckedChange={(checked) => updateFormData('isOnSale', checked)}
+                    disabled={isLoading}
                   />
                 </div>
               </div>
@@ -312,6 +335,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
                     value={feature}
                     onChange={(e) => updateFeature(index, e.target.value)}
                     placeholder="أدخل ميزة المنتج"
+                    disabled={isLoading}
                   />
                   {formData.features.length > 1 && (
                     <Button
@@ -319,6 +343,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
                       variant="outline"
                       size="sm"
                       onClick={() => removeFeature(index)}
+                      disabled={isLoading}
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -330,6 +355,7 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
                 variant="outline"
                 size="sm"
                 onClick={addFeature}
+                disabled={isLoading}
               >
                 إضافة ميزة جديدة
               </Button>
@@ -338,12 +364,21 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
 
           {/* Form Actions */}
           <div className="flex items-center justify-end space-x-4 space-x-reverse pt-6 border-t">
-            <Button type="button" variant="outline" onClick={onClose}>
+            <Button type="button" variant="outline" onClick={onClose} disabled={isLoading}>
               إلغاء
             </Button>
-            <Button type="submit" className="btn-primary">
-              <Save className="h-4 w-4 ml-2" />
-              {product ? 'تحديث المنتج' : 'حفظ المنتج'}
+            <Button type="submit" className="btn-primary" disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 ml-2 animate-spin" />
+                  {product ? 'جاري التحديث...' : 'جاري الحفظ...'}
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 ml-2" />
+                  {product ? 'تحديث المنتج' : 'حفظ المنتج'}
+                </>
+              )}
             </Button>
           </div>
         </form>

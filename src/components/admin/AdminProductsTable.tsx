@@ -5,9 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Search, Edit, Trash2, Eye, Package } from 'lucide-react';
+import { Search, Edit, Trash2, Eye, Package, Loader2 } from 'lucide-react';
 import { useProducts } from '@/hooks/useProducts';
-import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,12 +23,12 @@ interface AdminProductsTableProps {
 }
 
 const AdminProductsTable = ({ onEdit }: AdminProductsTableProps) => {
-  const { products, deleteProduct } = useProducts();
-  const { toast } = useToast();
+  const { products, loading, deleteProduct } = useProducts();
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const itemsPerPage = 10;
 
   const filteredProducts = products.filter(product =>
@@ -46,17 +45,28 @@ const AdminProductsTable = ({ onEdit }: AdminProductsTableProps) => {
     setDeleteDialogOpen(true);
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     if (productToDelete) {
-      deleteProduct(productToDelete);
-      toast({
-        title: "تم حذف المنتج",
-        description: "تم حذف المنتج بنجاح",
-      });
-      setDeleteDialogOpen(false);
-      setProductToDelete(null);
+      setIsDeleting(true);
+      const success = await deleteProduct(productToDelete);
+      if (success) {
+        setDeleteDialogOpen(false);
+        setProductToDelete(null);
+      }
+      setIsDeleting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="p-8 text-center">
+          <Loader2 className="h-8 w-8 mx-auto mb-4 animate-spin" />
+          <p className="text-muted-foreground">جاري تحميل المنتجات...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <>
@@ -202,9 +212,20 @@ const AdminProductsTable = ({ onEdit }: AdminProductsTableProps) => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>إلغاء</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmDelete} className="bg-red-600 hover:bg-red-700">
-              حذف
+            <AlertDialogCancel disabled={isDeleting}>إلغاء</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmDelete} 
+              className="bg-red-600 hover:bg-red-700"
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  جاري الحذف...
+                </>
+              ) : (
+                'حذف'
+              )}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
