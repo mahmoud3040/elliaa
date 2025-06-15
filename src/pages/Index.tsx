@@ -1,34 +1,39 @@
 
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Star, Truck, Shield, Headphones } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Star, Truck, Shield, Headphones, Gift, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
+import FloatingActionButton from '@/components/FloatingActionButton';
 import { products, categories } from '@/data/products';
 
 const Index = () => {
   const featuredProducts = products.slice(0, 6);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-lavender-50 via-background to-purple-50">
       <Header />
       
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary/10 via-background to-gold-50 py-16 md:py-24">
-          <div className="container-rtl">
+        <section className="relative py-16 md:py-24 overflow-hidden">
+          <div className="absolute inset-0 lavender-gradient opacity-10"></div>
+          <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-primary/20 to-purple-300/20 rounded-full blur-3xl animate-float"></div>
+          <div className="absolute bottom-20 right-10 w-64 h-64 bg-gradient-to-tr from-purple-200/30 to-pink-200/20 rounded-full blur-2xl animate-float" style={{ animationDelay: '1s' }}></div>
+          
+          <div className="container-rtl relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-8 animate-slide-in-left">
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <h1 className="text-4xl md:text-6xl font-bold leading-tight">
                     <span className="text-gradient">متجر إيلياء</span>
                     <br />
                     <span className="text-foreground">للأدوات المكتبية</span>
                   </h1>
-                  <p className="text-xl text-muted-foreground max-w-lg">
-                    اكتشف مجموعة واسعة من الأدوات المكتبية والقرطاسية عالية الجودة بأفضل الأسعار
+                  <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
+                    اكتشف مجموعة واسعة من الأدوات المكتبية والقرطاسية عالية الجودة بأفضل الأسعار مع تجربة تسوق استثنائية
                   </p>
                 </div>
                 
@@ -40,24 +45,24 @@ const Index = () => {
                     </Button>
                   </Link>
                   <Link to="/about">
-                    <Button variant="outline" size="lg">
+                    <Button variant="outline" size="lg" className="btn-secondary">
                       من نحن
                       <ArrowLeft className="h-5 w-5 mr-2" />
                     </Button>
                   </Link>
                 </div>
 
-                <div className="flex items-center space-x-8 space-x-reverse pt-4">
+                <div className="grid grid-cols-3 gap-8 pt-8">
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">500+</div>
+                    <div className="text-3xl font-bold text-gradient">500+</div>
                     <div className="text-sm text-muted-foreground">منتج</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">1000+</div>
+                    <div className="text-3xl font-bold text-gradient">1000+</div>
                     <div className="text-sm text-muted-foreground">عميل سعيد</div>
                   </div>
                   <div className="text-center">
-                    <div className="text-2xl font-bold text-primary">4.9</div>
+                    <div className="text-3xl font-bold text-gradient">4.9</div>
                     <div className="flex items-center justify-center mt-1">
                       {[...Array(5)].map((_, i) => (
                         <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
@@ -72,22 +77,26 @@ const Index = () => {
                   <img
                     src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=600&fit=crop"
                     alt="أدوات مكتبية"
-                    className="rounded-lg shadow-2xl"
+                    className="rounded-2xl shadow-2xl hover:shadow-3xl transition-shadow duration-500"
                   />
+                  <div className="absolute -top-6 -right-6 w-24 h-24 lavender-gradient rounded-2xl flex items-center justify-center shadow-xl animate-float">
+                    <Gift className="h-12 w-12 text-white" />
+                  </div>
+                  <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl animate-float" style={{ animationDelay: '0.5s' }}>
+                    <Zap className="h-10 w-10 text-white" />
+                  </div>
                 </div>
-                <div className="absolute -top-4 -right-4 w-72 h-72 bg-gradient-to-br from-primary/20 to-gold-200 rounded-full blur-3xl -z-10"></div>
-                <div className="absolute -bottom-8 -left-8 w-64 h-64 bg-gradient-to-tr from-gold-200/30 to-primary/10 rounded-full blur-2xl -z-10"></div>
               </div>
             </div>
           </div>
         </section>
 
         {/* Categories Section */}
-        <section className="py-16 bg-background">
+        <section className="py-16 bg-background relative">
           <div className="container-rtl">
             <div className="text-center space-y-4 mb-12 animate-fade-in">
-              <h2 className="text-3xl font-bold">تسوق حسب الفئة</h2>
-              <p className="text-muted-foreground">اختر من بين فئات متنوعة من المنتجات</p>
+              <h2 className="text-3xl font-bold text-gradient">تسوق حسب الفئة</h2>
+              <p className="text-muted-foreground text-lg">اختر من بين فئات متنوعة من المنتجات عالية الجودة</p>
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -95,13 +104,17 @@ const Index = () => {
                 <Link
                   key={category.id}
                   to={`/products?category=${category.id}`}
-                  className="animate-scale-in"
+                  className="animate-scale-in hover-lift"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <Card className="hover-lift text-center p-6 bg-gradient-to-br from-background to-muted/50">
+                  <Card className="text-center p-6 glass-effect hover:shadow-xl transition-all duration-300 group">
                     <CardContent className="p-0 space-y-4">
-                      <div className="text-4xl">{category.icon}</div>
-                      <h3 className="font-semibold">{category.name}</h3>
+                      <div className="text-5xl group-hover:scale-110 transition-transform duration-300">
+                        {category.icon}
+                      </div>
+                      <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
+                        {category.name}
+                      </h3>
                     </CardContent>
                   </Card>
                 </Link>
@@ -111,15 +124,15 @@ const Index = () => {
         </section>
 
         {/* Featured Products */}
-        <section className="py-16 bg-muted/30">
+        <section className="py-16 bg-gradient-to-br from-muted/30 to-accent/20">
           <div className="container-rtl">
             <div className="flex items-center justify-between mb-12">
               <div className="space-y-2 animate-slide-in-left">
-                <h2 className="text-3xl font-bold">المنتجات المميزة</h2>
-                <p className="text-muted-foreground">أحدث وأفضل منتجاتنا</p>
+                <h2 className="text-3xl font-bold text-gradient">المنتجات المميزة</h2>
+                <p className="text-muted-foreground text-lg">أحدث وأفضل منتجاتنا المختارة خصيصاً لك</p>
               </div>
               <Link to="/products">
-                <Button variant="outline" className="animate-fade-in">
+                <Button variant="outline" className="btn-secondary animate-fade-in hover-lift">
                   عرض الكل
                   <ArrowLeft className="h-4 w-4 mr-2" />
                 </Button>
@@ -144,38 +157,38 @@ const Index = () => {
         <section className="py-16 bg-background">
           <div className="container-rtl">
             <div className="text-center space-y-4 mb-12 animate-fade-in">
-              <h2 className="text-3xl font-bold">لماذا تختار متجر إيلياء؟</h2>
-              <p className="text-muted-foreground">نوفر لك أفضل تجربة تسوق</p>
+              <h2 className="text-3xl font-bold text-gradient">لماذا تختار متجر إيلياء؟</h2>
+              <p className="text-muted-foreground text-lg">نوفر لك أفضل تجربة تسوق مع خدمات متميزة</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              <div className="text-center space-y-4 animate-scale-in">
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-gold-500 rounded-full flex items-center justify-center mx-auto">
-                  <Truck className="h-8 w-8 text-white" />
+              <div className="text-center space-y-4 animate-scale-in group">
+                <div className="w-20 h-20 lavender-gradient rounded-2xl flex items-center justify-center mx-auto shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-110">
+                  <Truck className="h-10 w-10 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold">شحن سريع</h3>
-                <p className="text-muted-foreground">
-                  توصيل سريع لجميع المحافظات خلال 1-3 أيام عمل
+                <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">شحن سريع</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  توصيل سريع لجميع المحافظات خلال 1-3 أيام عمل مع إمكانية التتبع المباشر
                 </p>
               </div>
 
-              <div className="text-center space-y-4 animate-scale-in" style={{ animationDelay: '0.1s' }}>
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-gold-500 rounded-full flex items-center justify-center mx-auto">
-                  <Shield className="h-8 w-8 text-white" />
+              <div className="text-center space-y-4 animate-scale-in group" style={{ animationDelay: '0.1s' }}>
+                <div className="w-20 h-20 lavender-gradient rounded-2xl flex items-center justify-center mx-auto shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-110">
+                  <Shield className="h-10 w-10 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold">ضمان الجودة</h3>
-                <p className="text-muted-foreground">
-                  جميع منتجاتنا مضمونة الجودة مع إمكانية الاستبدال
+                <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">ضمان الجودة</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  جميع منتجاتنا مضمونة الجودة مع إمكانية الاستبدال والإرجاع خلال 14 يوم
                 </p>
               </div>
 
-              <div className="text-center space-y-4 animate-scale-in" style={{ animationDelay: '0.2s' }}>
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-gold-500 rounded-full flex items-center justify-center mx-auto">
-                  <Headphones className="h-8 w-8 text-white" />
+              <div className="text-center space-y-4 animate-scale-in group" style={{ animationDelay: '0.2s' }}>
+                <div className="w-20 h-20 lavender-gradient rounded-2xl flex items-center justify-center mx-auto shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-110">
+                  <Headphones className="h-10 w-10 text-white" />
                 </div>
-                <h3 className="text-xl font-semibold">دعم فني 24/7</h3>
-                <p className="text-muted-foreground">
-                  فريق خدمة العملاء متاح لمساعدتك في أي وقت
+                <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">دعم فني 24/7</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  فريق خدمة العملاء متاح لمساعدتك في أي وقت عبر الهاتف أو الواتساب
                 </p>
               </div>
             </div>
@@ -183,17 +196,18 @@ const Index = () => {
         </section>
 
         {/* CTA Section */}
-        <section className="py-16 bg-gradient-to-r from-primary to-gold-500">
-          <div className="container-rtl text-center">
+        <section className="py-16 lavender-gradient relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-purple-600/10"></div>
+          <div className="container-rtl text-center relative z-10">
             <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
               <h2 className="text-3xl font-bold text-white">
                 ابدأ التسوق الآن واحصل على خصم 15%
               </h2>
-              <p className="text-primary-foreground/90 text-lg">
-                على طلبك الأول عند التسوق بأكثر من 200 جنيه
+              <p className="text-white/90 text-lg leading-relaxed">
+                على طلبك الأول عند التسوق بأكثر من 200 جنيه مع شحن مجاني لجميع المحافظات
               </p>
               <Link to="/products">
-                <Button size="lg" variant="secondary" className="btn-secondary">
+                <Button size="lg" variant="secondary" className="bg-white text-primary hover:bg-white/90 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300">
                   تسوق الآن وادخر
                   <ShoppingCart className="h-5 w-5 mr-2" />
                 </Button>
@@ -204,6 +218,7 @@ const Index = () => {
       </main>
 
       <Footer />
+      <FloatingActionButton />
     </div>
   );
 };
