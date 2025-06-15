@@ -7,9 +7,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
-import { X, Save, Package, Upload } from 'lucide-react';
+import { X, Save, Package } from 'lucide-react';
 import { categories } from '@/data/products';
+import { useProducts } from '@/hooks/useProducts';
+import { useToast } from '@/hooks/use-toast';
 
 interface ProductFormProps {
   product?: any;
@@ -18,6 +19,8 @@ interface ProductFormProps {
 }
 
 const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
+  const { addProduct, updateProduct } = useProducts();
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     id: '',
     name: '',
@@ -55,6 +58,25 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
         features: product.features || [''],
         specifications: product.specifications || {}
       });
+    } else {
+      // Reset form for new product
+      setFormData({
+        id: '',
+        name: '',
+        description: '',
+        price: 0,
+        originalPrice: 0,
+        category: '',
+        image: '',
+        stock: 0,
+        sku: '',
+        weight: 0,
+        isNew: false,
+        isFeatured: false,
+        isOnSale: false,
+        features: [''],
+        specifications: {}
+      });
     }
   }, [product]);
 
@@ -71,6 +93,20 @@ const ProductForm = ({ product, onClose, onSave }: ProductFormProps) => {
       features: formData.features.filter(f => f.trim() !== ''),
       dimensions: product?.dimensions || { length: 20, width: 15, height: 5 }
     };
+
+    if (product) {
+      updateProduct(productData);
+      toast({
+        title: "تم تحديث المنتج",
+        description: "تم تحديث بيانات المنتج بنجاح",
+      });
+    } else {
+      addProduct(productData);
+      toast({
+        title: "تم إضافة المنتج",
+        description: "تم إضافة المنتج الجديد بنجاح",
+      });
+    }
 
     onSave(productData);
   };

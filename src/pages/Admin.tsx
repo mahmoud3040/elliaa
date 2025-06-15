@@ -119,11 +119,6 @@ const Admin = () => {
                       setEditingProduct(null);
                     }}
                     onSave={(product) => {
-                      console.log('حفظ المنتج:', product);
-                      toast({
-                        title: editingProduct ? "تم تحديث المنتج" : "تم إضافة المنتج",
-                        description: "تم حفظ بيانات المنتج بنجاح",
-                      });
                       setShowProductForm(false);
                       setEditingProduct(null);
                     }}
