@@ -17,6 +17,7 @@ import ThankYou from "./pages/ThankYou";
 import Wishlist from "./pages/Wishlist";
 import NotFound from "./pages/NotFound";
 import OrderReceived from "./pages/OrderReceived";
+import FloatingActionButton from '@/components/FloatingActionButton';
 
 const queryClient = new QueryClient();
 
@@ -43,6 +44,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
+            <FloatingActionButton />
           </TooltipProvider>
         </WishlistProvider>
       </CartProvider>

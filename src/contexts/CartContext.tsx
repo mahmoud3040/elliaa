@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 export interface CartItem {
   id: string;
@@ -9,6 +10,8 @@ export interface CartItem {
   quantity: number;
   image: string;
   category?: string;
+  variation_id?: string;
+  attributes?: Array<{ name: string; value: string }>;
 }
 
 interface CartContextType {
@@ -58,19 +61,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: `تم إضافة ${newItem.name} إلى السلة`,
         action: (
           <div className="flex gap-2 mt-2">
-            <Button
-              variant="outline"
-              className="mr-2"
-              onClick={() => window.location.href = '/cart'}
-            >
-              عرض السلة
-            </Button>
-            <Button
-              className="btn-primary"
-              onClick={() => window.location.href = '/products'}
-            >
-              متابعة التسوق
-            </Button>
+            <Link to="cart">
+              <Button variant="outline" className="mr-2">
+                عرض السلة
+              </Button>
+            </Link>
+            <Link to="products">
+              <Button className="btn-primary">
+                متابعة التسوق
+              </Button>
+            </Link>
           </div>
         ),
         className: "animate-fade-in-slow shadow-2xl border-primary/40 bg-white/90 backdrop-blur-md",

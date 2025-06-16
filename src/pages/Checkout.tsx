@@ -111,8 +111,8 @@ const Checkout = () => {
       // إذا كانت طريقة الدفع كاشير أو أي بوابة تحتاج redirect
       const kashierGateways = ['kashier_card', 'kashier_wallet', 'kashier_bank_installments', 'kashier_valu', 'kashier_souhoola', 'kashier_aman'];
       if (kashierGateways.includes(paymentMethod)) {
-        // استخدم order_key من نتيجة الطلب أو orderDetails
-        const orderKey = result.key || (orderDetails && orderDetails.order_key);
+        // استخدم order_key من orderDetails فقط
+        const orderKey = orderDetails && orderDetails.order_key;
         if (orderKey) {
           window.location.href = `https://wp.elliaa.com/checkout/order-pay/${result.id}/?key=${orderKey}`;
           return;

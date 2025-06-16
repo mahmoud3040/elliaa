@@ -278,7 +278,7 @@ const ThankYou = () => {
 
             {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in">
-              <Link to="/products">
+              <Link to="products">
                 <Button size="lg" className="btn-primary">
                   متابعة التسوق
                 </Button>

@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -177,7 +176,7 @@ const Cart = () => {
                     </Button>
                   </Link>
                   
-                  <Link to="/products" className="w-full">
+                  <Link to="products" className="w-full">
                     <Button variant="outline" size="lg" className="w-full">
                       متابعة التسوق
                     </Button>

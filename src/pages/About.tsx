@@ -2,7 +2,11 @@ import { Heart, Users, Award, Target } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { useProducts } from '@/hooks/useWooProducts';
+
 const About = () => {
+  const { data: products } = useProducts();
+  const productCount = products ? products.length : 0;
   const values = [{
     icon: <Target className="h-8 w-8 text-primary" />,
     title: 'رؤيتنا',
@@ -24,7 +28,7 @@ const About = () => {
     number: '5+',
     label: 'سنوات خبرة'
   }, {
-    number: '500+',
+    number: productCount + '+',
     label: 'منتج متاح'
   }, {
     number: '1000+',
@@ -36,7 +40,7 @@ const About = () => {
   return <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-1">
+      <main className="flex-1 pt-24">
         {/* Hero Section */}
         <section className="py-16 bg-gradient-to-br from-primary/10 via-background to-gold-50">
           <div className="container-rtl">
@@ -121,42 +125,6 @@ const About = () => {
           </div>
         </section>
 
-        {/* Team Section */}
-        <section className="py-16 bg-background">
-          <div className="container-rtl">
-            <div className="text-center space-y-4 mb-12 animate-fade-in">
-              <h2 className="text-3xl font-bold">بعض آراء العملاء</h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">منذ بدايتنا ونحن نهتم بآراء العملاء وتقييمهم لمنتجاتنا</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {[{
-              name: 'أحمد محمد',
-              role: 'المدير العام',
-              image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face'
-            }, {
-              name: 'فاطمة علي',
-              role: 'مدير خدمة العملاء',
-              image: 'https://images.unsplash.com/photo-1494790108755-2616b612b1e6?w=300&h=300&fit=crop&crop=face'
-            }, {
-              name: 'محمد حسن',
-              role: 'مدير المبيعات',
-              image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&crop=face'
-            }].map((member, index) => <Card key={member.name} className="text-center hover-lift animate-scale-in" style={{
-              animationDelay: `${index * 0.1}s`
-            }}>
-                  <CardContent className="p-6 space-y-4 px-[24px]">
-                    <img src={member.image} alt={member.name} className="w-24 h-24 rounded-full mx-auto object-cover" />
-                    <div>
-                      <h3 className="font-semibold text-xl">{member.name}</h3>
-                      
-                    </div>
-                  </CardContent>
-                </Card>)}
-            </div>
-          </div>
-        </section>
-
         {/* Contact CTA */}
         <section className="py-16 bg-muted/30">
           <div className="container-rtl text-center">
@@ -166,10 +134,10 @@ const About = () => {
                 هل لديك أسئلة أو تحتاج مساعدة؟ فريقنا جاهز لمساعدتك في أي وقت
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="tel:+201234567890" className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
+                <a href="tel:+201141792085" className="inline-flex items-center justify-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
                   <span>اتصل بنا</span>
                 </a>
-                <a href="mailto:info@elyaastore.com" className="inline-flex items-center justify-center px-6 py-3 border border-primary text-primary rounded-lg hover:bg-primary/10 transition-colors">
+                <a href="mailto:support@elliaa.com" className="inline-flex items-center justify-center px-6 py-3 border border-primary text-primary rounded-lg hover:bg-primary/10 transition-colors">
                   <span>راسلنا</span>
                 </a>
               </div>

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Phone, Mail, MapPin, Clock, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -25,13 +24,13 @@ const Contact = () => {
     {
       icon: <Phone className="h-6 w-6 text-primary" />,
       title: 'اتصل بنا',
-      details: ['+20 123 456 7890', '+20 100 123 4567'],
+      details: ['+201141792085'],
       description: 'متاح من 9 صباحاً حتى 9 مساءً'
     },
     {
       icon: <Mail className="h-6 w-6 text-primary" />,
       title: 'راسلنا',
-      details: ['info@elyaastore.com', 'support@elyaastore.com'],
+      details: ['support@elliaa.com'],
       description: 'نرد على رسائلك خلال 24 ساعة'
     },
     {
@@ -108,7 +107,7 @@ const Contact = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-1">
+      <main className="flex-1 pt-24">
         {/* Hero Section */}
         <section className="py-16 bg-gradient-to-br from-primary/10 via-background to-gold-50">
           <div className="container-rtl">

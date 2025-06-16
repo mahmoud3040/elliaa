@@ -1,8 +1,9 @@
-
 import { Link } from 'react-router-dom';
 import { Heart, Phone, Mail, MapPin } from 'lucide-react';
+import { useMemo } from 'react';
 
 const Footer = () => {
+  const year = useMemo(() => new Date().getFullYear(), []);
   return (
     <footer className="bg-muted/50 border-t mt-auto">
       <div className="container-rtl py-12">
@@ -16,12 +17,12 @@ const Footer = () => {
               <span className="text-xl font-bold text-gradient">متجر إيلياء</span>
             </Link>
             <p className="text-muted-foreground text-sm">
-              متجرك المفضل للأدوات المكتبية والقرطاسية عالية الجودة بأفضل الأسعار.
+              متجرك المفضل للأدوات المكتبية عالية الجودة بأفضل الأسعار.
             </p>
             <div className="flex items-center space-x-2 space-x-reverse text-sm text-muted-foreground">
               <span>صُنع بـ</span>
               <Heart className="h-4 w-4 text-red-500" />
-              <span>في مصر</span>
+              <span>لأجلك</span>
             </div>
           </div>
 
@@ -85,24 +86,26 @@ const Footer = () => {
             <div className="space-y-3">
               <div className="flex items-center space-x-3 space-x-reverse text-sm">
                 <Phone className="h-4 w-4 text-primary" />
-                <span className="text-muted-foreground">+20 123 456 7890</span>
+                <span className="text-muted-foreground">01141792085</span>
               </div>
               <div className="flex items-center space-x-3 space-x-reverse text-sm">
                 <Mail className="h-4 w-4 text-primary" />
-                <span className="text-muted-foreground">info@elyaastore.com</span>
+                <span className="text-muted-foreground">support@elliaa.com</span>
               </div>
               <div className="flex items-start space-x-3 space-x-reverse text-sm">
                 <MapPin className="h-4 w-4 text-primary mt-0.5" />
-                <span className="text-muted-foreground">القاهرة، مصر</span>
+                <span className="text-muted-foreground"> مصر</span>
               </div>
             </div>
           </div>
         </div>
 
         <div className="border-t mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-sm text-muted-foreground">
-            © 2024 متجر إيلياء. جميع الحقوق محفوظة.
-          </p>
+        <p dir="rtl" className="text-sm text-muted-foreground text-right w-full">
+  جميع الحقوق محفوظة | متجر إيلياء © 2025
+</p>
+
+
           <div className="flex items-center space-x-4 space-x-reverse mt-4 md:mt-0">
             <Link to="/privacy" className="text-sm text-muted-foreground hover:text-primary transition-colors">
               سياسة الخصوصية

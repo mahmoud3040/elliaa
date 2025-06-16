@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { MessageCircle, Phone, Mail, ArrowUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,15 +10,15 @@ const FloatingActionButton = () => {
   };
 
   const openWhatsApp = () => {
-    window.open('https://wa.me/201234567890', '_blank');
+    window.open('https://wa.me/201062206570', '_blank');
   };
 
   const callPhone = () => {
-    window.open('tel:+201234567890', '_blank');
+    window.open('tel:+201141792085', '_blank');
   };
 
   const sendEmail = () => {
-    window.open('mailto:info@elyaastore.com', '_blank');
+    window.open('mailto:support@elliaa.com', '_blank');
   };
 
   return (

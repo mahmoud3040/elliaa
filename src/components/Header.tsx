@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useTheme } from '@/components/ThemeProvider';
+import logoWhite from '@/assets/logo-white.png';
+import logoBlack from '@/assets/logo-black.png';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -63,14 +65,18 @@ const Header = () => {
         <div className="flex items-center justify-between h-20 sm:h-24">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2 space-x-reverse group">
-            <div className="w-10 h-10 sm:w-14 sm:h-14 lavender-gradient rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
-              <span className="text-white font-bold text-xl sm:text-2xl">إ</span>
+            <div className="w-14 h-14 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 bg-transparent p-0">
+              <img
+                src={theme === 'dark' ? logoWhite : logoBlack}
+                alt="شعار متجر إيلياء"
+                className="w-full h-full object-contain"
+              />
             </div>
-            <span className="text-lg sm:text-2xl font-bold text-gradient">متجر إيلياء</span>
+            <span className="text-2xl font-bold text-gradient">متجر إيلياء</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6 lg:space-x-8 space-x-reverse">
+          <nav className="hidden md:flex items-center space-x-8 space-x-reverse">
             {navigation.map((item) => (
               <Link
                 key={item.name}

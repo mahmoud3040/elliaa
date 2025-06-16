@@ -1,4 +1,3 @@
-
 import { Trash2, ShoppingCart, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -21,7 +20,7 @@ const Wishlist = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-lavender-50 to-purple-50">
       <Header />
       
-      <main className="flex-1 py-8">
+      <main className="flex-1 pt-24">
         <div className="container-rtl">
           <div className="mb-8 animate-fade-in">
             <h1 className="text-3xl font-bold text-gradient mb-2">قائمة المفضلة</h1>

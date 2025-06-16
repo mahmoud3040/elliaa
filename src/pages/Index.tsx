@@ -5,9 +5,10 @@ import { Card, CardContent } from '@/components/ui/card';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
-import FloatingActionButton from '@/components/FloatingActionButton';
 import ConfigNotice from '@/components/ConfigNotice';
 import { useHomeProducts, useCategories } from '@/hooks/useWooProducts';
+import splash from '@/assets/splash.jpg';
+
 const Index = () => {
   const {
     data: homeProducts = [],
@@ -88,7 +89,7 @@ const Index = () => {
 
               <div className="relative animate-fade-in">
                 <div className="relative z-10">
-                  <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=600&fit=crop" alt="أدوات مكتبية" className="rounded-2xl shadow-2xl hover:shadow-3xl transition-shadow duration-500" />
+                  <img src={splash} alt="أدوات مكتبية" className="rounded-2xl shadow-2xl hover:shadow-3xl transition-shadow duration-500" />
                   <div className="absolute -top-6 -right-6 w-24 h-24 lavender-gradient rounded-2xl flex items-center justify-center shadow-xl animate-float">
                     <Gift className="h-12 w-12 text-white" />
                   </div>
@@ -215,7 +216,7 @@ const Index = () => {
                 </div>
                 <h3 className="text-xl font-semibold group-hover:text-primary transition-colors">شحن سريع</h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  توصيل سريع لجميع المحافظات خلال 1-3 أيام عمل مع إمكانية التتبع المباشر
+                  توصيل سريع لجميع المحافظات خلال 2 - 4 أيام عمل مع إمكانية التتبع المباشر
                 </p>
               </div>
 
@@ -255,7 +256,7 @@ const Index = () => {
                 ابدأ التسوق الآن واحصل على خصم 15%
               </h2>
               <p className="text-white/90 text-lg leading-relaxed">
-                على طلبك الأول عند التسوق بأكثر من 200 جنيه مع شحن مجاني لجميع المحافظات
+                على طلبك الأول عند التسوق بأكثر من 500 جنيه مع شحن مجاني لجميع المحافظات
               </p>
               <Link to="/products">
                 <Button size="lg" variant="secondary" className="bg-white text-primary hover:bg-white/90 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300">
@@ -269,7 +270,6 @@ const Index = () => {
       </main>
 
       <Footer />
-      <FloatingActionButton />
     </div>;
 };
 export default Index;
