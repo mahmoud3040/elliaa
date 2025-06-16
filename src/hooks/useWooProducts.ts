@@ -66,11 +66,32 @@ export const useHomeProducts = () => {
   return useQuery<Product[], Error>({
     queryKey: ['home-products'],
     queryFn: async () => {
+      console.log('🔍 Fetching home products...');
+      
+      // جلب جميع الفئات أولاً لمعرفة ID فئة home
+      const categories = await wooCommerce.getCategories();
+      console.log('📂 All categories:', categories);
+      
+      const homeCategory = categories.find(cat => cat.slug === 'home');
+      console.log('🏠 Home category found:', homeCategory);
+      
+      if (!homeCategory) {
+        console.warn('⚠️ Home category not found!');
+        return [];
+      }
+      
       const wooProducts = await wooCommerce.getProducts({
         per_page: 100,
-        category: 'home', // فلترة بفئة home
+        category: homeCategory.id.toString(), // استخدام ID بدلاً من slug
       });
-      return wooProducts.map(transformWooProductToProduct);
+      
+      console.log('🛍️ Raw WooCommerce products from home category:', wooProducts);
+      console.log('📊 Number of products found:', wooProducts.length);
+      
+      const transformedProducts = wooProducts.map(transformWooProductToProduct);
+      console.log('✨ Transformed products:', transformedProducts);
+      
+      return transformedProducts;
     },
     staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
@@ -95,14 +116,19 @@ export const useCategories = () => {
     queryKey: ['categories'],
     queryFn: async () => {
       const wooCategories = await wooCommerce.getCategories();
+      console.log('📂 All categories for filtering:', wooCategories);
+      
       // فلترة فئة "home" من القائمة
-      return wooCategories
+      const filteredCategories = wooCategories
         .filter(cat => cat.slug !== 'home') // إخفاء فئة home
         .map(cat => ({
           id: cat.slug,
           name: cat.name,
           icon: '📁', // يمكنك تخصيص الأيقونات حسب الفئة
         }));
+        
+      console.log('🎯 Filtered categories (without home):', filteredCategories);
+      return filteredCategories;
     },
     staleTime: 10 * 60 * 1000,
     gcTime: 30 * 60 * 1000,

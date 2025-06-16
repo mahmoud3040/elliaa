@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingCart, Star, Truck, Shield, Headphones, Gift, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -11,10 +10,16 @@ import ConfigNotice from '@/components/ConfigNotice';
 import { useHomeProducts, useCategories } from '@/hooks/useWooProducts';
 
 const Index = () => {
-  const { data: homeProducts = [] } = useHomeProducts(); // استخدام منتجات فئة home
+  const { data: homeProducts = [], isLoading: homeProductsLoading, error: homeProductsError } = useHomeProducts();
   const { data: categories = [] } = useCategories();
   
+  // إضافة console logs لتتبع البيانات
+  console.log('🏠 Home products data:', homeProducts);
+  console.log('⏳ Home products loading:', homeProductsLoading);
+  console.log('❌ Home products error:', homeProductsError);
+  
   const featuredProducts = homeProducts.slice(0, 6);
+  console.log('⭐ Featured products (first 6):', featuredProducts);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-lavender-50 via-background to-purple-50">
@@ -148,7 +153,15 @@ const Index = () => {
               </Link>
             </div>
 
-            {featuredProducts.length > 0 ? (
+            {homeProductsLoading ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">جاري تحميل المنتجات...</p>
+              </div>
+            ) : homeProductsError ? (
+              <div className="text-center py-12">
+                <p className="text-red-500">خطأ في تحميل المنتجات: {homeProductsError.message}</p>
+              </div>
+            ) : featuredProducts.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {featuredProducts.map((product, index) => (
                   <div
@@ -163,7 +176,10 @@ const Index = () => {
             ) : (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">
-                  قم بإضافة منتجات إلى فئة "home" في ووردبرس لعرضها هنا
+                  لا توجد منتجات في فئة "home". قم بإضافة منتجات إلى فئة "home" في ووردبرس لعرضها هنا
+                </p>
+                <p className="text-sm text-muted-foreground mt-2">
+                  تأكد من أن الفئة موجودة وتحتوي على منتجات
                 </p>
               </div>
             )}
