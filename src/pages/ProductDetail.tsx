@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingCart, Heart, Star, Minus, Plus, Share2, Truck, Shield, RotateCcw, AlertCircle, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -101,6 +101,10 @@ const ProductDetail = () => {
       setShowColorAlert(false);
     }, 2500);
   };
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, []);
 
   if (isLoading) {
     return (
@@ -252,7 +256,7 @@ const ProductDetail = () => {
         </DialogContent>
       </Dialog>
 
-      <main className="flex-1 py-8">
+      <main className="flex-1 pt-24 bg-background">
         <div className="container-rtl">
           {/* Breadcrumb */}
           <nav className="flex items-center space-x-2 space-x-reverse text-sm text-muted-foreground mb-8 animate-fade-in">
