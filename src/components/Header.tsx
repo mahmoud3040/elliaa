@@ -13,7 +13,7 @@ import logoBlack from '@/assets/logo-black.png';
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const { getTotalItems } = useCart();
   const { items: wishlistItems } = useWishlist();
