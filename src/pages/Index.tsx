@@ -112,20 +112,38 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {categories.map((category, index) => <Link key={category.id} to={`/products?category=${category.id}`} className="animate-scale-in hover-lift" style={{
-              animationDelay: `${index * 0.1}s`
-            }}>
-                  <Card className="text-center p-6 glass-effect hover:shadow-xl transition-all duration-300 group">
-                    <CardContent className="p-0 space-y-4">
-                      <div className="text-5xl group-hover:scale-110 transition-transform duration-300">
-                        {category.icon}
-                      </div>
-                      <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
-                        {category.name}
-                      </h3>
-                    </CardContent>
-                  </Card>
-                </Link>)}
+              {categories.map((category, index) => {
+                console.log(`🎨 Rendering category ${category.name}:`, category);
+                return (
+                  <Link 
+                    key={category.id} 
+                    to={`/products?category=${category.id}`} 
+                    className="animate-scale-in hover-lift" 
+                    style={{
+                      animationDelay: `${index * 0.1}s`
+                    }}
+                  >
+                    <Card className="text-center p-6 glass-effect hover:shadow-xl transition-all duration-300 group">
+                      <CardContent className="p-0 space-y-4">
+                        <div className="relative w-24 h-24 mx-auto rounded-full overflow-hidden group-hover:scale-110 transition-transform duration-300">
+                          <img 
+                            src={category.image} 
+                            alt={category.name}
+                            className="w-full h-full object-cover "
+                            onError={(e) => {
+                              console.error(`❌ Error loading image for ${category.name}:`, e);
+                              e.currentTarget.src = '/placeholder.svg';
+                            }}
+                          />
+                        </div>
+                        <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
+                          {category.name}
+                        </h3>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -151,11 +169,26 @@ const Index = () => {
               </div> : homeProductsError ? <div className="text-center py-12">
                 <p className="text-red-500">خطأ في تحميل المنتجات: {homeProductsError.message}</p>
               </div> : featuredProducts.length > 0 ? <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {featuredProducts.map((product, index) => <div key={product.id} className="animate-scale-in" style={{
-              animationDelay: `${index * 0.1}s`
-            }}>
-                    <ProductCard {...product} />
-                  </div>)}
+                {featuredProducts.map((product, index) => (
+                  <div key={product.id} className="animate-scale-in" style={{
+                    animationDelay: `${index * 0.1}s`
+                  }}>
+                    <ProductCard
+                      id={product.id}
+                      name={product.name}
+                      price={product.price}
+                      originalPrice={product.originalPrice}
+                      image={product.image}
+                      images={product.images}
+                      category={product.category}
+                      rating={product.rating}
+                      isNew={product.isNew}
+                      isOnSale={product.isOnSale}
+                      type={product.type}
+                      attributes={product.attributes}
+                    />
+                  </div>
+                ))}
               </div> : <div className="text-center py-12">
                 <p className="text-muted-foreground">
                   لا توجد منتجات في فئة "home". قم بإضافة منتجات إلى فئة "home" في ووردبرس لعرضها هنا

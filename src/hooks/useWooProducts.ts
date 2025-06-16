@@ -1,6 +1,5 @@
-
 import { useQuery } from '@tanstack/react-query';
-import { wooCommerce, WooProduct } from '@/lib/woocommerce';
+import { wooCommerce, WooProduct, WooVariation } from '@/lib/woocommerce';
 
 export interface Product {
   id: string;
@@ -17,6 +16,12 @@ export interface Product {
   isOnSale: boolean;
   features: string[];
   specifications?: Record<string, string>;
+  type: string;
+  attributes: Array<{
+    id: number;
+    name: string;
+    options: string[];
+  }>;
 }
 
 const transformWooProductToProduct = (wooProduct: WooProduct): Product => {
@@ -37,7 +42,13 @@ const transformWooProductToProduct = (wooProduct: WooProduct): Product => {
     specifications: wooProduct.attributes.reduce((specs, attr) => {
       specs[attr.name] = attr.options.join(', ');
       return specs;
-    }, {} as Record<string, string>)
+    }, {} as Record<string, string>),
+    type: wooProduct.type,
+    attributes: wooProduct.attributes.map(attr => ({
+      id: attr.id,
+      name: attr.name,
+      options: attr.options
+    }))
   };
 };
 
@@ -112,22 +123,26 @@ export const useProduct = (id: string) => {
 };
 
 export const useCategories = () => {
-  return useQuery<Array<{ id: string; name: string; icon: string }>, Error>({
+  return useQuery<Array<{ id: string; name: string; icon: string; image: string }>, Error>({
     queryKey: ['categories'],
     queryFn: async () => {
       const wooCategories = await wooCommerce.getCategories();
-      console.log('📂 All categories for filtering:', wooCategories);
+      console.log('📂 Raw WooCommerce categories:', JSON.stringify(wooCategories, null, 2));
       
       // فلترة فئة "home" من القائمة
       const filteredCategories = wooCategories
         .filter(cat => cat.slug !== 'home') // إخفاء فئة home
-        .map(cat => ({
-          id: cat.slug,
-          name: cat.name,
-          icon: '📁', // يمكنك تخصيص الأيقونات حسب الفئة
-        }));
+        .map(cat => {
+          console.log(`🔍 Processing category ${cat.name}:`, cat);
+          return {
+            id: cat.slug,
+            name: cat.name,
+            icon: '📁',
+            image: cat.image?.src || '/placeholder.svg',
+          };
+        });
         
-      console.log('🎯 Filtered categories (without home):', filteredCategories);
+      console.log('🎯 Final transformed categories:', JSON.stringify(filteredCategories, null, 2));
       return filteredCategories;
     },
     staleTime: 10 * 60 * 1000,
@@ -138,4 +153,18 @@ export const useCategories = () => {
 export const getProductById = (id: string): Product | null => {
   // This function is kept for compatibility but will be replaced by useProduct hook
   return null;
+};
+
+export const useProductVariations = (productId: string) => {
+  return useQuery<WooVariation[], Error>({
+    queryKey: ['product-variations', productId],
+    queryFn: async () => {
+      if (!productId) return [];
+      const variations = await wooCommerce.getProductVariations(parseInt(productId));
+      return variations;
+    },
+    enabled: !!productId,
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
 };

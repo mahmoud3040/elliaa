@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import { Search, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -200,68 +199,62 @@ const Products = () => {
             </div>
 
             {/* Products Grid */}
-            <div className="lg:col-span-3 space-y-6">
-              {/* Sort and Results Count */}
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-slide-in-left">
-                <p className="text-muted-foreground">
-                  {productsLoading ? 'جاري التحميل...' : `عرض ${filteredProducts.length} منتج`}
+            <div className="lg:col-span-3">
+              {/* Sort Bar */}
+              <div className="flex items-center justify-between mb-6">
+                <p className="text-sm text-muted-foreground">
+                  {filteredProducts.length} منتج
                 </p>
-                
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-48">
+                  <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="ترتيب حسب" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="name">الاسم</SelectItem>
-                    <SelectItem value="price-low">السعر: من الأقل للأعلى</SelectItem>
-                    <SelectItem value="price-high">السعر: من الأعلى للأقل</SelectItem>
+                    <SelectItem value="price-low">السعر: من الأقل</SelectItem>
+                    <SelectItem value="price-high">السعر: من الأعلى</SelectItem>
                     <SelectItem value="rating">التقييم</SelectItem>
                     <SelectItem value="newest">الأحدث</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
-              {/* Products Grid */}
+              {/* Products */}
               {productsLoading ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {[...Array(6)].map((_, i) => (
-                    <div key={i} className="animate-pulse">
-                      <div className="bg-gray-200 h-64 rounded-lg"></div>
-                      <div className="mt-4 space-y-2">
-                        <div className="bg-gray-200 h-4 rounded"></div>
-                        <div className="bg-gray-200 h-4 w-3/4 rounded"></div>
-                      </div>
-                    </div>
+                    <Card key={i} className="animate-pulse">
+                      <div className="h-48 bg-muted rounded-t-lg" />
+                      <CardContent className="p-4 space-y-3">
+                        <div className="h-4 bg-muted rounded w-3/4" />
+                        <div className="h-4 bg-muted rounded w-1/2" />
+                      </CardContent>
+                    </Card>
                   ))}
                 </div>
               ) : filteredProducts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {filteredProducts.map((product, index) => (
-                    <div
+                  {filteredProducts.map((product) => (
+                    <ProductCard
                       key={product.id}
-                      className="animate-scale-in"
-                      style={{ animationDelay: `${index * 0.1}s` }}
-                    >
-                      <ProductCard {...product} />
-                    </div>
+                      id={product.id}
+                      name={product.name}
+                      price={product.price}
+                      originalPrice={product.originalPrice}
+                      image={product.image}
+                      images={product.images}
+                      category={product.category}
+                      rating={product.rating}
+                      isNew={product.isNew}
+                      isOnSale={product.isOnSale}
+                      type={product.type}
+                      attributes={product.attributes}
+                    />
                   ))}
                 </div>
               ) : (
-                <div className="text-center py-12 animate-fade-in">
-                  <div className="text-6xl mb-4">🔍</div>
-                  <h3 className="text-xl font-semibold mb-2">لم نجد أي منتجات</h3>
-                  <p className="text-muted-foreground mb-4">
-                    جرب تغيير المرشحات أو البحث عن شيء آخر
-                  </p>
-                  <Button
-                    onClick={() => {
-                      setSearchQuery('');
-                      setSelectedCategories([]);
-                      setPriceRange([0, 1000]);
-                    }}
-                  >
-                    مسح جميع المرشحات
-                  </Button>
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">لا توجد منتجات تطابق المرشحات المحددة</p>
                 </div>
               )}
             </div>

@@ -1,4 +1,3 @@
-
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { wooCommerce } from '@/lib/woocommerce';
 import { toast } from '@/hooks/use-toast';
@@ -28,9 +27,10 @@ export const useCreateOrder = () => {
 
   return useMutation({
     mutationFn: async (orderData: OrderData) => {
+      // تمرير طريقة الدفع المختارة فعليًا
       const wooOrderData = {
-        payment_method: orderData.paymentMethod === 'cod' ? 'cod' : 'bacs',
-        payment_method_title: orderData.paymentMethod === 'cod' ? 'الدفع عند الاستلام' : 'تحويل بنكي',
+        payment_method: orderData.paymentMethod,
+        payment_method_title: orderData.paymentMethod,
         billing: {
           first_name: orderData.firstName,
           last_name: orderData.lastName,

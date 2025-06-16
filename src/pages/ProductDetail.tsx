@@ -1,32 +1,106 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, ShoppingCart, Heart, Star, Minus, Plus, Share2, Truck, Shield, RotateCcw } from 'lucide-react';
+import { ArrowLeft, ShoppingCart, Heart, Star, Minus, Plus, Share2, Truck, Shield, RotateCcw, AlertCircle, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { toast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
-import { useProduct, useProducts } from '@/hooks/useWooProducts';
+import { useProduct, useProducts, useProductVariations } from '@/hooks/useWooProducts';
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [showColorAlert, setShowColorAlert] = useState(false);
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
   const { data: product, isLoading, error } = useProduct(id || '');
   const { data: allProducts = [] } = useProducts();
+  const { data: variations = [] } = useProductVariations(id || '');
+  const [selectedVariation, setSelectedVariation] = useState(null);
 
   const relatedProducts = product ? allProducts.filter(p => 
     p.category === product.category && p.id !== product.id
   ).slice(0, 4) : [];
+
+  // دالة لتحويل اسم اللون إلى قيمة CSS صالحة
+  const getColorValue = (color: string) => {
+    if (!color) return 'gray';
+    const colors: Record<string, string> = {
+      'أحمر': 'red',
+      'أزرق': '#3011ab',
+      'أخضر': '#167306',
+      'أسود': 'black',
+      'أبيض': 'white',
+      'أصفر': 'yellow',
+      'برتقالي': 'orange',
+      'بنفسجي': 'purple',
+      'وردي': 'pink',
+      'بينك': '#c817cf',
+      'لافندر': '#6a1b9a',
+      'رمادي': 'gray',
+      'بني': 'brown',
+      'سماوي': 'skyblue',
+      'فضي': 'silver',
+      'ذهبي': 'gold',
+      // الإنجليزية
+      'red': 'red',
+      'blue': '#3011ab',
+      'green': '#167306',
+      'black': 'black',
+      'white': 'white',
+      'yellow': 'yellow',
+      'orange': 'orange',
+      'purple': 'purple',
+      'pink': '#c817cf',
+      'lavender': '#6a1b9a',
+      'gray': 'gray',
+      'brown': 'brown',
+      'skyblue': 'skyblue',
+      'silver': 'silver',
+      'gold': 'gold',
+    };
+    if (/^#([0-9A-Fa-f]{3}){1,2}$/.test(color) || color.startsWith('rgb') || color.startsWith('hsl')) {
+      return color;
+    }
+    return colors[color.trim()] || 'gray';
+  };
+
+  // دالة لتحويل اسم اللون العربي إلى slug بالإنجليزي
+  const getColorSlug = (arabicColor: string): string => {
+    const colorMap: Record<string, string> = {
+      'أخضر': 'green',
+      'أزرق': 'blue',
+      'بينك': 'pink',
+      'لافندر': 'lavender',
+      // يمكن إضافة المزيد من الألوان حسب الحاجة
+    };
+    return colorMap[arabicColor] || arabicColor.toLowerCase();
+  };
+
+  // Auto-hide dialog after 2.5 seconds with smooth animation
+  const showAlert = () => {
+    setShowColorAlert(true);
+    setTimeout(() => {
+      setShowColorAlert(false);
+    }, 2500);
+  };
 
   if (isLoading) {
     return (
@@ -62,15 +136,36 @@ const ProductDetail = () => {
   }
 
   const handleAddToCart = () => {
+    const itemToAdd = {
+      id: selectedVariation ? selectedVariation.id : product.id,
+      name: product.name,
+      price: selectedVariation ? 
+        parseFloat(selectedVariation.sale_price || selectedVariation.regular_price) : 
+        product.price,
+      image: selectedVariation?.image?.src || product.image,
+      category: product.category,
+      variation_id: selectedVariation?.id,
+      attributes: selectedVariation ? [
+        {
+          name: 'color',
+          value: getColorSlug(selectedVariation.attributes.find(attr => 
+            attr.name.toLowerCase() === 'color' || attr.name === 'اللون'
+          )?.option || '')
+        }
+      ] : []
+    };
+
     for (let i = 0; i < quantity; i++) {
-      addToCart({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        category: product.category
-      });
+      addToCart(itemToAdd);
     }
+
+    // إظهار رسالة نجاح
+    toast({
+      title: "تم الإضافة للسلة",
+      description: `تم إضافة ${product.name} ${selectedVariation ? `(${selectedVariation.attributes.find(attr => attr.name.toLowerCase() === 'color' || attr.name === 'اللون')?.option})` : ''} للسلة`,
+      variant: "default",
+      duration: 2000,
+    });
   };
 
   const handleToggleWishlist = () => {
@@ -107,6 +202,56 @@ const ProductDetail = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       
+      {/* Color Selection Alert Dialog */}
+      <Dialog open={showColorAlert} onOpenChange={setShowColorAlert}>
+        <DialogContent className={cn(
+          "sm:max-w-md border-0 shadow-2xl bg-background rounded-2xl overflow-hidden",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out",
+          "data-[state=open]:fade-in-0 data-[state=closed]:fade-out-0",
+          "data-[state=open]:slide-in-from-bottom-1/2 data-[state=closed]:slide-out-to-bottom-1/2",
+          "data-[state=open]:scale-100 data-[state=closed]:scale-95",
+          "duration-500 ease-in-out"
+        )}>
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-background rounded-2xl" />
+          <div className="relative">
+            <div className="absolute -top-12 left-1/2 -translate-x-1/2 p-3 bg-primary/10 rounded-full border border-primary/20">
+              <Palette className="w-6 h-6 text-primary animate-pulse" />
+            </div>
+            <DialogHeader className="pt-4">
+              <DialogTitle className="text-2xl font-bold text-center text-primary">
+                اختيار اللون
+              </DialogTitle>
+              <DialogDescription className="text-lg text-center mt-4 space-y-2">
+                <p className="text-muted-foreground">
+                  من فضلك اختر اللون المناسب للمنتج
+                </p>
+                <div className="flex justify-center gap-2 mt-3 mb-2">
+                  {variations.slice(0, 3).map((variation) => {
+                    const colorAttr = variation.attributes.find(attr => 
+                      attr.name.toLowerCase() === 'color' || attr.name === 'اللون'
+                    );
+                    if (colorAttr) {
+                      return (
+                        <div
+                          key={variation.id}
+                          className="w-8 h-8 rounded-full border-2 border-white/20 shadow-lg animate-bounce"
+                          style={{ 
+                            background: getColorValue(colorAttr.option),
+                            animationDelay: `${Math.random() * 0.5}s`,
+                            animationDuration: '2s'
+                          }}
+                        />
+                      );
+                    }
+                    return null;
+                  })}
+                </div>
+              </DialogDescription>
+            </DialogHeader>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <main className="flex-1 py-8">
         <div className="container-rtl">
           {/* Breadcrumb */}
@@ -123,7 +268,11 @@ const ProductDetail = () => {
             <div className="space-y-4 animate-scale-in">
               <div className="relative overflow-hidden rounded-lg border">
                 <img
-                  src={product.images[selectedImage] || product.image}
+                  src={
+                    selectedVariation?.image?.src ||
+                    product.images[selectedImage] ||
+                    product.image
+                  }
                   alt={product.name}
                   className="w-full h-96 object-cover"
                 />
@@ -138,8 +287,8 @@ const ProductDetail = () => {
                   </Badge>
                 )}
               </div>
-              
-              {product.images.length > 1 && (
+              {/* صور مصغرة */}
+              {product.images.length > 1 && !selectedVariation && (
                 <div className="flex space-x-2 space-x-reverse">
                   {product.images.map((image, index) => (
                     <button
@@ -186,19 +335,64 @@ const ProductDetail = () => {
 
                 <div className="flex items-center space-x-4 space-x-reverse">
                   <span className="text-3xl font-bold text-primary">
-                    {product.price} ج.م
+                    {selectedVariation?.sale_price || selectedVariation?.regular_price || product.price} ج.م
                   </span>
-                  {product.originalPrice && (
+                  {selectedVariation?.sale_price && (
+                    <span className="text-xl text-muted-foreground line-through">
+                      {selectedVariation?.regular_price} ج.م
+                    </span>
+                  )}
+                  {selectedVariation?.sale_price && (
+                    <Badge className="bg-red-500">
+                      وفر {parseFloat(selectedVariation.regular_price) - parseFloat(selectedVariation.sale_price)} ج.م
+                    </Badge>
+                  )}
+                  {!selectedVariation && product.originalPrice && (
                     <span className="text-xl text-muted-foreground line-through">
                       {product.originalPrice} ج.م
                     </span>
                   )}
-                  {product.originalPrice && (
+                  {!selectedVariation && product.originalPrice && (
                     <Badge className="bg-red-500">
                       وفر {product.originalPrice - product.price} ج.م
                     </Badge>
                   )}
                 </div>
+
+                {/* خيارات المنتج المتغيرة (variables) */}
+                {variations.length > 0 && (
+                  <div className="py-4">
+                    <div className="font-medium mb-3">اللون :</div>
+                    <div className="flex flex-wrap gap-3">
+                      {variations.map((variation) => {
+                        const colorAttr = variation.attributes.find(attr => attr.name.toLowerCase() === 'color' || attr.name === 'اللون');
+                        if (colorAttr) {
+                          return (
+                            <button
+                              key={variation.id}
+                              onClick={() => setSelectedVariation(variation)}
+                              className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all duration-200 hover:scale-110 ${selectedVariation?.id === variation.id ? 'border-primary scale-110 shadow-lg' : 'border-gray-300'}`}
+                              style={{ background: getColorValue(colorAttr.option) }}
+                              title={colorAttr.option}
+                            />
+                          );
+                        } else {
+                          const textAttr = variation.attributes[0];
+                          return (
+                            <button
+                              key={variation.id}
+                              onClick={() => setSelectedVariation(variation)}
+                              className={`px-4 py-1 rounded border text-sm font-medium transition-all duration-150 ${selectedVariation?.id === variation.id ? 'border-primary bg-primary text-white' : 'border-gray-300 bg-white'}`}
+                              style={{ minWidth: 40 }}
+                            >
+                              {textAttr?.option || 'اختيار'}
+                            </button>
+                          );
+                        }
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <div 
                   className="text-muted-foreground leading-relaxed"
@@ -234,12 +428,18 @@ const ProductDetail = () => {
 
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button
-                    onClick={handleAddToCart}
-                    className="flex-1 btn-primary"
+                    onClick={() => {
+                      if (variations.length > 0 && !selectedVariation) {
+                        showAlert();
+                        return;
+                      }
+                      handleAddToCart();
+                    }}
+                    className={`flex-1 btn-primary ${variations.length > 0 && !selectedVariation ? 'opacity-90 hover:opacity-100' : ''}`}
                     size="lg"
                   >
                     <ShoppingCart className="h-5 w-5 ml-2" />
-                    أضف للسلة - {(product.price * quantity).toFixed(0)} ج.م
+                    أضف للسلة - {(selectedVariation ? parseFloat(selectedVariation.sale_price || selectedVariation.regular_price) : product.price) * quantity} ج.م
                   </Button>
                   
                   <Button
@@ -389,7 +589,20 @@ const ProductDetail = () => {
                     className="animate-scale-in"
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    <ProductCard {...relatedProduct} />
+                    <ProductCard
+                      id={relatedProduct.id}
+                      name={relatedProduct.name}
+                      price={relatedProduct.price}
+                      originalPrice={relatedProduct.originalPrice}
+                      image={relatedProduct.image}
+                      images={relatedProduct.images}
+                      category={relatedProduct.category}
+                      rating={relatedProduct.rating}
+                      isNew={relatedProduct.isNew}
+                      isOnSale={relatedProduct.isOnSale}
+                      type={relatedProduct.type}
+                      attributes={relatedProduct.attributes}
+                    />
                   </div>
                 ))}
               </div>

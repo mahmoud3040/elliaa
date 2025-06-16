@@ -1,6 +1,6 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
 
 export interface CartItem {
   id: string;
@@ -56,6 +56,25 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       toast({
         title: "تم إضافة المنتج",
         description: `تم إضافة ${newItem.name} إلى السلة`,
+        action: (
+          <div className="flex gap-2 mt-2">
+            <Button
+              variant="outline"
+              className="mr-2"
+              onClick={() => window.location.href = '/cart'}
+            >
+              عرض السلة
+            </Button>
+            <Button
+              className="btn-primary"
+              onClick={() => window.location.href = '/products'}
+            >
+              متابعة التسوق
+            </Button>
+          </div>
+        ),
+        className: "animate-fade-in-slow shadow-2xl border-primary/40 bg-white/90 backdrop-blur-md",
+        duration: 5000, // مدة الظهور 5 ثواني
       });
       return [...prevItems, { ...newItem, quantity: 1 }];
     });

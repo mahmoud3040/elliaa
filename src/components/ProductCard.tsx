@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { ShoppingCart, Heart, Star, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -6,6 +5,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
+import { useState } from 'react';
+import { useProductVariations } from '@/hooks/useWooProducts';
 
 interface ProductCardProps {
   id: string;
@@ -13,10 +14,17 @@ interface ProductCardProps {
   price: number;
   originalPrice?: number;
   image: string;
+  images: string[];
   category: string;
   rating?: number;
   isNew?: boolean;
   isOnSale?: boolean;
+  type?: string;
+  attributes?: Array<{
+    id: number;
+    name: string;
+    options: string[];
+  }>;
 }
 
 const ProductCard = ({
@@ -25,17 +33,43 @@ const ProductCard = ({
   price,
   originalPrice,
   image,
+  images,
   category,
   rating = 5,
   isNew = false,
   isOnSale = false,
+  type = 'simple',
+  attributes = [],
 }: ProductCardProps) => {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
+  const [selectedImage, setSelectedImage] = useState(image);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
+
+  // Fetch variations if this is a variable product
+  const { data: variations } = useProductVariations(type === 'variable' ? id : '');
+
+  // Find color attribute if it exists
+  const colorAttribute = attributes.find(attr => 
+    attr.name.toLowerCase() === 'color' || 
+    attr.name.toLowerCase() === 'اللون' || 
+    attr.name.toLowerCase() === 'colour'
+  );
+
+  const handleColorSelect = (color: string) => {
+    setSelectedColor(color);
+    // Find the variation with this color
+    const variation = variations?.find(v => 
+      v.attributes.some(attr => attr.option.toLowerCase() === color.toLowerCase())
+    );
+    if (variation?.image?.src) {
+      setSelectedImage(variation.image.src);
+    }
+  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    addToCart({ id, name, price, image, category });
+    addToCart({ id, name, price, image: selectedImage, category });
   };
 
   const handleToggleWishlist = (e: React.MouseEvent) => {
@@ -43,17 +77,32 @@ const ProductCard = ({
     if (isInWishlist(id)) {
       removeFromWishlist(id);
     } else {
-      addToWishlist({ id, name, price, image, category });
+      addToWishlist({ id, name, price, image: selectedImage, category });
     }
   };
 
   const discountPercentage = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
 
+  // Color mapping for swatches
+  const colorMap: Record<string, string> = {
+    'lavender': '#6a1b9a',
+    'pink': '#c817cf',
+    'Pink': '#c817cf',
+    'PINK': '#c817cf',
+    'blue': '#3011ab',
+    'green': '#167306',
+    'أزرق': '#3011ab',
+    'وردي': '#c817cf',
+    'بينك': '#c817cf',
+    'أخضر': '#167306',
+    'لافندر': '#6a1b9a',
+  };
+
   return (
     <Card className="product-card hover-lift group animate-scale-in relative overflow-hidden">
       <div className="relative overflow-hidden">
         <img
-          src={image}
+          src={selectedImage}
           alt={name}
           className="w-full h-48 object-cover transition-all duration-500 group-hover:scale-110"
           loading="lazy"
@@ -102,16 +151,27 @@ const ProductCard = ({
           </Link>
         </div>
 
-        {/* Quick Add to Cart */}
+        {/* Quick Add to Cart or Choose Color */}
         <div className="absolute bottom-3 left-3 right-3 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-2 group-hover:translate-y-0">
-          <Button
-            onClick={handleAddToCart}
-            className="w-full btn-primary shadow-lg backdrop-blur-sm"
-            size="sm"
-          >
-            <ShoppingCart className="h-4 w-4 ml-1" />
-            أضف للسلة
-          </Button>
+          {type === 'variable' ? (
+            <Link to={`/products/${id}`}>
+              <Button
+                className="w-full btn-primary shadow-lg backdrop-blur-sm"
+                size="sm"
+              >
+                اختر اللون
+              </Button>
+            </Link>
+          ) : (
+            <Button
+              onClick={handleAddToCart}
+              className="w-full btn-primary shadow-lg backdrop-blur-sm"
+              size="sm"
+            >
+              <ShoppingCart className="h-4 w-4 ml-1" />
+              أضف للسلة
+            </Button>
+          )}
         </div>
       </div>
 
@@ -134,6 +194,28 @@ const ProductCard = ({
               {name}
             </h3>
           </Link>
+
+          {/* Color Swatches */}
+          {colorAttribute && colorAttribute.options.length > 0 && (
+            <div className="flex items-center gap-2 py-2">
+              {colorAttribute.options.map((color) => (
+                <button
+                  key={color}
+                  onClick={() => handleColorSelect(color)}
+                  className={`w-6 h-6 rounded-full border-2 transition-all duration-200 ${
+                    selectedColor === color 
+                      ? 'border-primary scale-110' 
+                      : 'border-transparent hover:scale-105'
+                  }`}
+                  style={{
+                    backgroundColor: colorMap[color.toLowerCase()] || colorMap[color] || color,
+                    boxShadow: selectedColor === color ? '0 0 0 2px rgba(0,0,0,0.1)' : 'none'
+                  }}
+                  title={color}
+                />
+              ))}
+            </div>
+          )}
           
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2 space-x-reverse">

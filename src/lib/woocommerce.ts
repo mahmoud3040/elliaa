@@ -1,8 +1,20 @@
-
 // WooCommerce API configuration and helper functions
-const WC_BASE_URL = 'https://elliaa-f7a8crfnbmczgea2.italynorth-01.azurewebsites.net'; // رابط موقع ووردبرس الخاص بك
-const CONSUMER_KEY = 'ck_3cf68e0188d4b3230a0995a1345819fff687e0fe';
-const CONSUMER_SECRET = 'cs_25ecda98dd8c4d05e6618196b7bc54a7a46258d7';
+const WC_BASE_URL = 'https://wp.elliaa.com'; // رابط موقع ووردبرس الجديد
+const CONSUMER_KEY = 'ck_7b19208aba5eecf7010f566c02cde93f68f5dec1';
+const CONSUMER_SECRET = 'cs_cf1a9c7182e8c08686412af61c7a4edac48225b7';
+
+export interface WooVariation {
+  id: number;
+  regular_price: string;
+  sale_price: string;
+  attributes: Array<{
+    name: string;
+    option: string;
+  }>;
+  image: {
+    src: string;
+  };
+}
 
 export interface WooProduct {
   id: number;
@@ -34,6 +46,8 @@ export interface WooProduct {
     name: string;
     options: string[];
   }>;
+  variations: number[];
+  type: string;
 }
 
 export interface WooOrder {
@@ -72,7 +86,6 @@ export interface WooOrder {
   payment_method_title: string;
   date_created: string;
 }
-
 class WooCommerceAPI {
   private baseURL: string;
   private auth: string;
@@ -126,8 +139,20 @@ class WooCommerceAPI {
     return this.makeRequest(`/products/${id}`);
   }
 
-  async getCategories(): Promise<Array<{ id: number; name: string; slug: string; count: number }>> {
-    return this.makeRequest('/products/categories');
+  async getCategories(): Promise<Array<{ 
+    id: number; 
+    name: string; 
+    slug: string; 
+    count: number;
+    image?: {
+      src: string;
+    };
+  }>> {
+    return this.makeRequest('/products/categories?per_page=100&_fields=id,name,slug,count,image');
+  }
+
+  async getProductVariations(productId: number): Promise<WooVariation[]> {
+    return this.makeRequest(`/products/${productId}/variations`);
   }
 
   // Orders
@@ -169,6 +194,22 @@ class WooCommerceAPI {
       body: JSON.stringify(customerData),
     });
   }
+
+  // Payment Gateways
+  async getPaymentGateways(): Promise<any[]> {
+    return this.makeRequest('/payment_gateways');
+  }
+
+  // Shipping Methods
+  async getShippingMethods(): Promise<any[]> {
+    return this.makeRequest('/shipping_methods');
+  }
+
+  // WooCommerce Settings
+  async getSettings(): Promise<any[]> {
+    return this.makeRequest('/settings');
+  }
 }
 
 export const wooCommerce = new WooCommerceAPI();
+

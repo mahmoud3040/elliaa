@@ -1,15 +1,43 @@
-
 import { useLocation, Link } from 'react-router-dom';
-import { CheckCircle, Package, Truck, Phone } from 'lucide-react';
+import { CheckCircle, XCircle, Package, Truck, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import Lottie from 'lottie-react';
+import successAnim from '@/assets/success.json';
+import errorAnim from '@/assets/error.json';
 
 const ThankYou = () => {
   const location = useLocation();
   const orderData = location.state?.orderData;
+  const orderError = location.state?.orderError;
+
+  if (orderError) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 py-16">
+          <div className="container-rtl">
+            <div className="text-center space-y-6 max-w-md mx-auto animate-fade-in">
+              <div className="w-24 h-24 mx-auto">
+                <Lottie animationData={errorAnim} loop={false} />
+              </div>
+              <h1 className="text-2xl font-bold text-red-600 flex items-center justify-center gap-2">
+                <XCircle className="w-8 h-8" /> حدث خطأ في الطلب
+              </h1>
+              <p className="text-muted-foreground">لم يتم تنفيذ الطلب بنجاح. يرجى المحاولة مرة أخرى أو التواصل مع الدعم.</p>
+              <Link to="/checkout">
+                <Button>إعادة المحاولة</Button>
+              </Link>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!orderData) {
     return (
@@ -31,20 +59,48 @@ const ThankYou = () => {
     );
   }
 
-  const { items, shippingData, paymentMethod, total } = orderData;
-  const orderId = Math.random().toString(36).substr(2, 9).toUpperCase();
+  const { items, shippingData, paymentMethod, total, orderId, orderDetails } = orderData;
+
+  // إذا توفرت بيانات الطلب من WooCommerce استخدمها
+  const realOrderId = orderDetails?.id || orderId;
+  const realStatus = orderDetails?.status || 'processing';
+
+  // معالجة مشكلة undefined
+  if (!shippingData) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 py-16">
+          <div className="container-rtl">
+            <div className="text-center space-y-6 max-w-md mx-auto animate-fade-in">
+              <div className="w-24 h-24 mx-auto">
+                <Lottie animationData={errorAnim} loop={false} />
+              </div>
+              <h1 className="text-2xl font-bold text-red-600 flex items-center justify-center gap-2">
+                <XCircle className="w-8 h-8" /> بيانات الشحن غير متوفرة
+              </h1>
+              <p className="text-muted-foreground">حدث خطأ أثناء معالجة بيانات الشحن. يرجى المحاولة مرة أخرى.</p>
+              <Link to="/checkout">
+                <Button>إعادة المحاولة</Button>
+              </Link>
+            </div>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
       <main className="flex-1 py-16">
         <div className="container-rtl">
           <div className="max-w-2xl mx-auto space-y-8">
             {/* Success Message */}
             <div className="text-center space-y-6 animate-fade-in">
-              <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                <CheckCircle className="h-12 w-12 text-green-600" />
+              <div className="w-24 h-24 mx-auto">
+                <Lottie animationData={successAnim} loop={false} />
               </div>
               
               <div className="space-y-2">
@@ -56,7 +112,10 @@ const ThankYou = () => {
 
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                 <p className="text-sm text-green-800">
-                  <strong>رقم الطلب:</strong> #{orderId}
+                  <strong>رقم الطلب:</strong> #{realOrderId}
+                </p>
+                <p className="text-sm text-green-700 mt-1">
+                  حالة الطلب: {realStatus === 'processing' ? 'جاري التنفيذ' : realStatus}
                 </p>
                 <p className="text-sm text-green-700 mt-1">
                   احتفظ بهذا الرقم للمرجعية المستقبلية

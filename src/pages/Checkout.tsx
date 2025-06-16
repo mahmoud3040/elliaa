@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard, Truck, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,6 +14,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useCart } from '@/contexts/CartContext';
 import { useCreateOrder } from '@/hooks/useWooOrders';
+import { wooCommerce } from '@/lib/woocommerce';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -31,6 +31,10 @@ const Checkout = () => {
     governorate: '',
     postalCode: '',
   });
+  const [paymentGateways, setPaymentGateways] = useState<any[]>([]);
+  const [shippingMethods, setShippingMethods] = useState<any[]>([]);
+  const [settings, setSettings] = useState<any[]>([]);
+  const [selectedShippingMethod, setSelectedShippingMethod] = useState<string>("");
 
   const subtotal = getTotalPrice();
   const shipping = subtotal > 100 ? 0 : 25;
@@ -43,6 +47,29 @@ const Checkout = () => {
     'دمياط', 'الشرقية', 'جنوب سيناء', 'كفر الشيخ', 'مطروح', 'الأقصر',
     'قنا', 'شمال سيناء', 'سوهاج'
   ];
+
+  useEffect(() => {
+    async function fetchWooData() {
+      try {
+        const [gateways, shipping, settings] = await Promise.all([
+          wooCommerce.getPaymentGateways(),
+          wooCommerce.getShippingMethods(),
+          wooCommerce.getSettings()
+        ]);
+        setPaymentGateways(gateways);
+        console.log('WooCommerce Payment Gateways:', gateways); // تحقق من ظهور جميع بوابات الدفع
+        setShippingMethods(shipping);
+        setSettings(settings);
+        // تعيين أول طريقة شحن كافتراضية
+        if (shipping && shipping.length > 0) {
+          setSelectedShippingMethod(shipping[0].id);
+        }
+      } catch (e) {
+        // يمكن عرض رسالة خطأ هنا إذا أردت
+      }
+    }
+    fetchWooData();
+  }, []);
 
   const handleInputChange = (field: string, value: string) => {
     setShippingData(prev => ({ ...prev, [field]: value }));
@@ -74,15 +101,31 @@ const Checkout = () => {
       };
 
       const result = await createOrderMutation.mutateAsync(orderData);
-      
-      // Clear cart and redirect to thank you page
+      // جلب بيانات الطلب كاملة من WooCommerce
+      let orderDetails = null;
+      try {
+        orderDetails = await import('@/lib/woocommerce').then(m => m.wooCommerce.getOrder(result.id));
+      } catch (e) {
+        orderDetails = null;
+      }
+      // إذا كانت طريقة الدفع كاشير أو أي بوابة تحتاج redirect
+      const kashierGateways = ['kashier_card', 'kashier_wallet', 'kashier_bank_installments', 'kashier_valu', 'kashier_souhoola', 'kashier_aman'];
+      if (kashierGateways.includes(paymentMethod)) {
+        // استخدم order_key من نتيجة الطلب أو orderDetails
+        const orderKey = result.key || (orderDetails && orderDetails.order_key);
+        if (orderKey) {
+          window.location.href = `https://wp.elliaa.com/checkout/order-pay/${result.id}/?key=${orderKey}`;
+          return;
+        }
+      }
+      // Clear cart and redirect to order-received page مع تمرير رقم الطلب في الرابط
       clearCart();
-      
-      navigate('/thank-you', {
+      navigate(`/order-received/${result.id}`, {
         state: {
           orderData: {
             ...orderData,
             orderId: result.id,
+            orderDetails: orderDetails || null,
           }
         }
       });
@@ -226,7 +269,7 @@ const Checkout = () => {
                   </CardContent>
                 </Card>
 
-                {/* Payment Method */}
+                {/* Payment Method - ديناميكي */}
                 <Card className="animate-scale-in" style={{ animationDelay: '0.1s' }}>
                   <CardHeader>
                     <CardTitle className="flex items-center">
@@ -237,35 +280,50 @@ const Checkout = () => {
                   <CardContent>
                     <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
                       <div className="space-y-4">
-                        <div className="flex items-center space-x-3 space-x-reverse p-4 border rounded-lg">
-                          <RadioGroupItem value="cod" id="cod" />
-                          <Label htmlFor="cod" className="flex-1 cursor-pointer">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <div className="font-medium">الدفع عند الاستلام</div>
-                                <div className="text-sm text-muted-foreground">
-                                  ادفع نقداً عند وصول الطلب
+                        {paymentGateways.filter(g => g.enabled).map((gateway) => (
+                          <div key={gateway.id} className="flex items-center space-x-3 space-x-reverse p-4 border rounded-lg">
+                            <RadioGroupItem value={gateway.id} id={gateway.id} />
+                            <Label htmlFor={gateway.id} className="flex-1 cursor-pointer">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <div className="font-medium">{gateway.method_title || gateway.title}</div>
+                                  <div className="text-sm text-muted-foreground">{gateway.method_description || gateway.description}</div>
                                 </div>
+                                <div className="text-2xl">{gateway.id.includes('kashier') ? '💳' : '💵'}</div>
                               </div>
-                              <div className="text-2xl">💵</div>
-                            </div>
-                          </Label>
-                        </div>
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    </RadioGroup>
+                  </CardContent>
+                </Card>
 
-                        <div className="flex items-center space-x-3 space-x-reverse p-4 border rounded-lg">
-                          <RadioGroupItem value="bacs" id="bacs" />
-                          <Label htmlFor="bacs" className="flex-1 cursor-pointer">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <div className="font-medium">تحويل بنكي</div>
-                                <div className="text-sm text-muted-foreground">
-                                  تحويل مباشر إلى الحساب البنكي
+                {/* Shipping Methods - ديناميكي */}
+                <Card className="animate-scale-in" style={{ animationDelay: '0.2s' }}>
+                  <CardHeader>
+                    <CardTitle className="flex items-center">
+                      <Truck className="h-5 w-5 ml-2" />
+                      طريقة الشحن
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <RadioGroup value={selectedShippingMethod} onValueChange={setSelectedShippingMethod}>
+                      <div className="space-y-4">
+                        {shippingMethods.filter(m => m.enabled).map((method) => (
+                          <div key={method.id} className="flex items-center space-x-3 space-x-reverse p-4 border rounded-lg">
+                            <RadioGroupItem value={method.id} id={method.id} />
+                            <Label htmlFor={method.id} className="flex-1 cursor-pointer">
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <div className="font-medium">{method.title}</div>
+                                  <div className="text-sm text-muted-foreground">{method.description}</div>
                                 </div>
+                                <div className="text-2xl">🚚</div>
                               </div>
-                              <div className="text-2xl">🏦</div>
-                            </div>
-                          </Label>
-                        </div>
+                            </Label>
+                          </div>
+                        ))}
                       </div>
                     </RadioGroup>
                   </CardContent>
@@ -278,7 +336,6 @@ const Checkout = () => {
                   <CardHeader>
                     <CardTitle>ملخص الطلب</CardTitle>
                   </CardHeader>
-                  
                   <CardContent className="space-y-4">
                     <div className="space-y-3">
                       {items.map((item) => (
@@ -290,28 +347,22 @@ const Checkout = () => {
                         </div>
                       ))}
                     </div>
-                    
                     <Separator />
-                    
                     <div className="flex justify-between">
                       <span>المجموع الفرعي</span>
                       <span>{subtotal.toFixed(0)} ج.م</span>
                     </div>
-                    
                     <div className="flex justify-between">
                       <span>الشحن</span>
                       <span className={shipping === 0 ? 'text-green-600' : ''}>
                         {shipping === 0 ? 'مجاني' : `${shipping} ج.م`}
                       </span>
                     </div>
-                    
                     <Separator />
-                    
                     <div className="flex justify-between text-lg font-bold">
                       <span>المجموع</span>
                       <span className="text-primary">{total.toFixed(0)} ج.م</span>
                     </div>
-
                     <div className="space-y-3 pt-4">
                       <div className="flex items-center space-x-2 space-x-reverse">
                         <Checkbox id="terms" required />
@@ -319,14 +370,12 @@ const Checkout = () => {
                           أوافق على الشروط والأحكام
                         </Label>
                       </div>
-
                       <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-800">
                         <p className="font-medium">📋 سيتم إرسال الطلب إلى:</p>
                         <p>• لوحة تحكم ووردبرس (WooCommerce)</p>
                         <p>• يمكنك متابعة وإدارة الطلب من هناك</p>
                       </div>
                     </div>
-                    
                     <Button
                       type="submit"
                       size="lg"
@@ -336,7 +385,6 @@ const Checkout = () => {
                       {createOrderMutation.isPending ? 'جاري الإرسال...' : 'تأكيد الطلب وإرسال لووردبرس'}
                       {!createOrderMutation.isPending && <ArrowLeft className="h-5 w-5 mr-2" />}
                     </Button>
-
                     <Link to="/cart" className="block">
                       <Button variant="outline" size="lg" className="w-full">
                         العودة للسلة
