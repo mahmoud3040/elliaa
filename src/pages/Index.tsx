@@ -7,9 +7,12 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import FloatingActionButton from '@/components/FloatingActionButton';
-import { products, categories } from '@/data/products';
+import { useProducts, useCategories } from '@/hooks/useWooProducts';
 
 const Index = () => {
+  const { data: products = [] } = useProducts({ featured: true });
+  const { data: categories = [] } = useCategories();
+  
   const featuredProducts = products.slice(0, 6);
 
   return (
@@ -54,7 +57,7 @@ const Index = () => {
 
                 <div className="grid grid-cols-3 gap-8 pt-8">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-gradient">500+</div>
+                    <div className="text-3xl font-bold text-gradient">{products.length}+</div>
                     <div className="text-sm text-muted-foreground">منتج</div>
                   </div>
                   <div className="text-center">
@@ -139,17 +142,25 @@ const Index = () => {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {featuredProducts.map((product, index) => (
-                <div
-                  key={product.id}
-                  className="animate-scale-in"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
-                  <ProductCard {...product} />
-                </div>
-              ))}
-            </div>
+            {featuredProducts.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {featuredProducts.map((product, index) => (
+                  <div
+                    key={product.id}
+                    className="animate-scale-in"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <ProductCard {...product} />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">
+                  تأكد من ضبط رابط ووردبرس لعرض المنتجات
+                </p>
+              </div>
+            )}
           </div>
         </section>
 

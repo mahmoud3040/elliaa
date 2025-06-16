@@ -13,7 +13,7 @@ import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
-import { getProductById, products } from '@/data/products';
+import { useProduct, useProducts } from '@/hooks/useWooProducts';
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,9 +22,29 @@ const ProductDetail = () => {
   const { addToCart } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
 
-  const product = id ? getProductById(id) : null;
+  const { data: product, isLoading, error } = useProduct(id || '');
+  const { data: allProducts = [] } = useProducts();
 
-  if (!product) {
+  const relatedProducts = product ? allProducts.filter(p => 
+    p.category === product.category && p.id !== product.id
+  ).slice(0, 4) : [];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full mx-auto"></div>
+            <p className="text-muted-foreground">جاري تحميل المنتج...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !product) {
     return (
       <div className="min-h-screen flex flex-col">
         <Header />
@@ -41,10 +61,6 @@ const ProductDetail = () => {
       </div>
     );
   }
-
-  const relatedProducts = products.filter(p => 
-    p.category === product.category && p.id !== product.id
-  ).slice(0, 4);
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) {
@@ -108,7 +124,7 @@ const ProductDetail = () => {
             <div className="space-y-4 animate-scale-in">
               <div className="relative overflow-hidden rounded-lg border">
                 <img
-                  src={product.images[selectedImage]}
+                  src={product.images[selectedImage] || product.image}
                   alt={product.name}
                   className="w-full h-96 object-cover"
                 />
@@ -185,9 +201,10 @@ const ProductDetail = () => {
                   )}
                 </div>
 
-                <p className="text-muted-foreground leading-relaxed">
-                  {product.description}
-                </p>
+                <div 
+                  className="text-muted-foreground leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: product.description }}
+                />
               </div>
 
               <Separator />
@@ -278,17 +295,20 @@ const ProductDetail = () => {
                   <CardContent className="p-6">
                     <div className="space-y-4">
                       <h3 className="text-xl font-semibold">وصف المنتج</h3>
-                      <p className="text-muted-foreground leading-relaxed">
-                        {product.description}
-                      </p>
-                      <div className="space-y-2">
-                        <h4 className="font-medium">المميزات:</h4>
-                        <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                          {product.features.map((feature, index) => (
-                            <li key={index}>{feature}</li>
-                          ))}
-                        </ul>
-                      </div>
+                      <div 
+                        className="text-muted-foreground leading-relaxed"
+                        dangerouslySetInnerHTML={{ __html: product.description }}
+                      />
+                      {product.features.length > 0 && (
+                        <div className="space-y-2">
+                          <h4 className="font-medium">المميزات:</h4>
+                          <ul className="list-disc list-inside space-y-1 text-muted-foreground">
+                            {product.features.map((feature, index) => (
+                              <li key={index}>{feature}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -299,7 +319,7 @@ const ProductDetail = () => {
                   <CardContent className="p-6">
                     <div className="space-y-4">
                       <h3 className="text-xl font-semibold">المواصفات التقنية</h3>
-                      {product.specifications && (
+                      {product.specifications && Object.keys(product.specifications).length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {Object.entries(product.specifications).map(([key, value]) => (
                             <div key={key} className="flex justify-between py-2 border-b">
@@ -308,6 +328,8 @@ const ProductDetail = () => {
                             </div>
                           ))}
                         </div>
+                      ) : (
+                        <p className="text-muted-foreground">لا توجد مواصفات متاحة لهذا المنتج</p>
                       )}
                     </div>
                   </CardContent>
@@ -339,8 +361,7 @@ const ProductDetail = () => {
                       </div>
                       
                       <div className="text-center py-8 text-muted-foreground">
-                        <p>لا توجد تقييمات بعد. كن أول من يقيم هذا المنتج!</p>
-                        <Button className="mt-4">اكتب تقييماً</Button>
+                        <p>التقييمات متاحة في لوحة تحكم ووردبرس</p>
                       </div>
                     </div>
                   </CardContent>

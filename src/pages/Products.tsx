@@ -10,7 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
-import { products, categories } from '@/data/products';
+import { useProducts, useCategories } from '@/hooks/useWooProducts';
 
 const Products = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -19,23 +19,22 @@ const Products = () => {
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000]);
   const [showFilters, setShowFilters] = useState(false);
 
+  // Fetch products from WooCommerce
+  const { data: products = [], isLoading: productsLoading, error: productsError } = useProducts({
+    search: searchQuery || undefined,
+  });
+
+  // Fetch categories from WooCommerce
+  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+
   const filteredProducts = useMemo(() => {
     let filtered = [...products];
-
-    // Search filter
-    if (searchQuery) {
-      filtered = filtered.filter(product =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
 
     // Category filter
     if (selectedCategories.length > 0) {
       filtered = filtered.filter(product =>
         selectedCategories.some(category =>
-          product.category === category ||
+          product.category.toLowerCase().includes(category.toLowerCase()) ||
           categories.find(cat => cat.id === category)?.name === product.category
         )
       );
@@ -63,7 +62,7 @@ const Products = () => {
     });
 
     return filtered;
-  }, [searchQuery, selectedCategories, sortBy, priceRange]);
+  }, [products, selectedCategories, sortBy, priceRange, categories]);
 
   const handleCategoryChange = (category: string, checked: boolean) => {
     if (checked) {
@@ -72,6 +71,26 @@ const Products = () => {
       setSelectedCategories(prev => prev.filter(cat => cat !== category));
     }
   };
+
+  if (productsError) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center space-y-4">
+            <h1 className="text-2xl font-bold text-red-600">خطأ في تحميل المنتجات</h1>
+            <p className="text-muted-foreground">
+              تأكد من ضبط رابط ووردبرس في ملف woocommerce.ts
+            </p>
+            <p className="text-sm text-muted-foreground">
+              يجب استبدال YOUR_WORDPRESS_SITE_URL برابط موقعك
+            </p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -117,25 +136,27 @@ const Products = () => {
                   </div>
 
                   {/* Categories */}
-                  <div className="space-y-3">
-                    <Label>الفئات</Label>
-                    <div className="space-y-2">
-                      {categories.map((category) => (
-                        <div key={category.id} className="flex items-center space-x-2 space-x-reverse">
-                          <Checkbox
-                            id={category.id}
-                            checked={selectedCategories.includes(category.id)}
-                            onCheckedChange={(checked) =>
-                              handleCategoryChange(category.id, checked as boolean)
-                            }
-                          />
-                          <Label htmlFor={category.id} className="text-sm font-normal">
-                            {category.name}
-                          </Label>
-                        </div>
-                      ))}
+                  {!categoriesLoading && categories.length > 0 && (
+                    <div className="space-y-3">
+                      <Label>الفئات</Label>
+                      <div className="space-y-2">
+                        {categories.map((category) => (
+                          <div key={category.id} className="flex items-center space-x-2 space-x-reverse">
+                            <Checkbox
+                              id={category.id}
+                              checked={selectedCategories.includes(category.id)}
+                              onCheckedChange={(checked) =>
+                                handleCategoryChange(category.id, checked as boolean)
+                              }
+                            />
+                            <Label htmlFor={category.id} className="text-sm font-normal">
+                              {category.name}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Price Range */}
                   <div className="space-y-3">
@@ -183,7 +204,7 @@ const Products = () => {
               {/* Sort and Results Count */}
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 animate-slide-in-left">
                 <p className="text-muted-foreground">
-                  عرض {filteredProducts.length} من {products.length} منتج
+                  {productsLoading ? 'جاري التحميل...' : `عرض ${filteredProducts.length} منتج`}
                 </p>
                 
                 <Select value={sortBy} onValueChange={setSortBy}>
@@ -201,7 +222,19 @@ const Products = () => {
               </div>
 
               {/* Products Grid */}
-              {filteredProducts.length > 0 ? (
+              {productsLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="animate-pulse">
+                      <div className="bg-gray-200 h-64 rounded-lg"></div>
+                      <div className="mt-4 space-y-2">
+                        <div className="bg-gray-200 h-4 rounded"></div>
+                        <div className="bg-gray-200 h-4 w-3/4 rounded"></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : filteredProducts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredProducts.map((product, index) => (
                     <div

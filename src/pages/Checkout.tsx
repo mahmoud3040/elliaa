@@ -14,11 +14,12 @@ import { toast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useCart } from '@/contexts/CartContext';
+import { useCreateOrder } from '@/hooks/useWooOrders';
 
 const Checkout = () => {
   const navigate = useNavigate();
   const { items, getTotalPrice, clearCart } = useCart();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const createOrderMutation = useCreateOrder();
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [shippingData, setShippingData] = useState({
     firstName: '',
@@ -49,7 +50,6 @@ const Checkout = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
 
     // Validate required fields
     const requiredFields = ['firstName', 'lastName', 'phone', 'address', 'city', 'governorate'];
@@ -61,40 +61,33 @@ const Checkout = () => {
         description: "يرجى ملء جميع الحقول المطلوبة",
         variant: "destructive",
       });
-      setIsSubmitting(false);
       return;
     }
 
     try {
-      // Simulate order processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      const orderData = {
+        ...shippingData,
+        paymentMethod,
+        items,
+        total,
+        shipping,
+      };
 
+      const result = await createOrderMutation.mutateAsync(orderData);
+      
       // Clear cart and redirect to thank you page
       clearCart();
       
-      toast({
-        title: "تم تأكيد الطلب",
-        description: "شكراً لك! تم إرسال طلبك بنجاح",
-      });
-
       navigate('/thank-you', {
         state: {
           orderData: {
-            items,
-            shippingData,
-            paymentMethod,
-            total,
+            ...orderData,
+            orderId: result.id,
           }
         }
       });
     } catch (error) {
-      toast({
-        title: "خطأ في الطلب",
-        description: "حدث خطأ أثناء معالجة طلبك. يرجى المحاولة مرة أخرى",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
+      console.error('Order submission error:', error);
     }
   };
 
@@ -126,7 +119,7 @@ const Checkout = () => {
         <div className="container-rtl">
           <div className="mb-8 animate-fade-in">
             <h1 className="text-3xl font-bold">إتمام الطلب</h1>
-            <p className="text-muted-foreground">أكمل بياناتك لإتمام عملية الشراء</p>
+            <p className="text-muted-foreground">أكمل بياناتك لإتمام عملية الشراء - سيتم إرسال الطلب إلى ووردبرس</p>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -259,47 +252,17 @@ const Checkout = () => {
                           </Label>
                         </div>
 
-                        <div className="flex items-center space-x-3 space-x-reverse p-4 border rounded-lg opacity-50">
-                          <RadioGroupItem value="fawry" id="fawry" disabled />
-                          <Label htmlFor="fawry" className="flex-1 cursor-pointer">
+                        <div className="flex items-center space-x-3 space-x-reverse p-4 border rounded-lg">
+                          <RadioGroupItem value="bacs" id="bacs" />
+                          <Label htmlFor="bacs" className="flex-1 cursor-pointer">
                             <div className="flex items-center justify-between">
                               <div>
-                                <div className="font-medium">فوري</div>
+                                <div className="font-medium">تحويل بنكي</div>
                                 <div className="text-sm text-muted-foreground">
-                                  قريباً...
+                                  تحويل مباشر إلى الحساب البنكي
                                 </div>
                               </div>
-                              <div className="text-2xl">📱</div>
-                            </div>
-                          </Label>
-                        </div>
-
-                        <div className="flex items-center space-x-3 space-x-reverse p-4 border rounded-lg opacity-50">
-                          <RadioGroupItem value="vodafone" id="vodafone" disabled />
-                          <Label htmlFor="vodafone" className="flex-1 cursor-pointer">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <div className="font-medium">فودافون كاش</div>
-                                <div className="text-sm text-muted-foreground">
-                                  قريباً...
-                                </div>
-                              </div>
-                              <div className="text-2xl">📱</div>
-                            </div>
-                          </Label>
-                        </div>
-
-                        <div className="flex items-center space-x-3 space-x-reverse p-4 border rounded-lg opacity-50">
-                          <RadioGroupItem value="card" id="card" disabled />
-                          <Label htmlFor="card" className="flex-1 cursor-pointer">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <div className="font-medium">بطاقة ائتمان</div>
-                                <div className="text-sm text-muted-foreground">
-                                  قريباً...
-                                </div>
-                              </div>
-                              <div className="text-2xl">💳</div>
+                              <div className="text-2xl">🏦</div>
                             </div>
                           </Label>
                         </div>
@@ -353,18 +316,14 @@ const Checkout = () => {
                       <div className="flex items-center space-x-2 space-x-reverse">
                         <Checkbox id="terms" required />
                         <Label htmlFor="terms" className="text-sm">
-                          أوافق على{' '}
-                          <Link to="/terms" className="text-primary hover:underline">
-                            الشروط والأحكام
-                          </Link>
+                          أوافق على الشروط والأحكام
                         </Label>
                       </div>
 
-                      <div className="flex items-center space-x-2 space-x-reverse">
-                        <Checkbox id="whatsapp" />
-                        <Label htmlFor="whatsapp" className="text-sm">
-                          إرسال الفاتورة على واتساب
-                        </Label>
+                      <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-800">
+                        <p className="font-medium">📋 سيتم إرسال الطلب إلى:</p>
+                        <p>• لوحة تحكم ووردبرس (WooCommerce)</p>
+                        <p>• يمكنك متابعة وإدارة الطلب من هناك</p>
                       </div>
                     </div>
                     
@@ -372,10 +331,10 @@ const Checkout = () => {
                       type="submit"
                       size="lg"
                       className="w-full btn-primary"
-                      disabled={isSubmitting}
+                      disabled={createOrderMutation.isPending}
                     >
-                      {isSubmitting ? 'جاري المعالجة...' : 'تأكيد الطلب'}
-                      {!isSubmitting && <ArrowLeft className="h-5 w-5 mr-2" />}
+                      {createOrderMutation.isPending ? 'جاري الإرسال...' : 'تأكيد الطلب وإرسال لووردبرس'}
+                      {!createOrderMutation.isPending && <ArrowLeft className="h-5 w-5 mr-2" />}
                     </Button>
 
                     <Link to="/cart" className="block">
