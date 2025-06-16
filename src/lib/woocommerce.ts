@@ -1,6 +1,6 @@
 
 // WooCommerce API configuration and helper functions
-const WC_BASE_URL = 'YOUR_WORDPRESS_SITE_URL'; // يجب استبدال هذا برابط موقع ووردبرس الخاص بك
+const WC_BASE_URL = 'https://elliaa-f7a8crfnbmczgea2.italynorth-01.azurewebsites.net'; // رابط موقع ووردبرس الخاص بك
 const CONSUMER_KEY = 'ck_3cf68e0188d4b3230a0995a1345819fff687e0fe';
 const CONSUMER_SECRET = 'cs_25ecda98dd8c4d05e6618196b7bc54a7a46258d7';
 
