@@ -145,7 +145,7 @@ const About = () => {
             }].map((member, index) => <Card key={member.name} className="text-center hover-lift animate-scale-in" style={{
               animationDelay: `${index * 0.1}s`
             }}>
-                  <CardContent className="p-6 space-y-4 px-[26px]">
+                  <CardContent className="p-6 space-y-4 px-[24px]">
                     <img src={member.image} alt={member.name} className="w-24 h-24 rounded-full mx-auto object-cover" />
                     <div>
                       <h3 className="text-xl font-semibold">{member.name}</h3>
