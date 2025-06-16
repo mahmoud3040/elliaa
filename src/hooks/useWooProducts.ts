@@ -47,7 +47,7 @@ export const useProducts = (params?: {
   featured?: boolean;
   onSale?: boolean;
 }) => {
-  return useQuery({
+  return useQuery<Product[], Error>({
     queryKey: ['products', params],
     queryFn: async () => {
       const wooProducts = await wooCommerce.getProducts({
@@ -57,12 +57,12 @@ export const useProducts = (params?: {
       return wooProducts.map(transformWooProductToProduct);
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
-    cacheTime: 10 * 60 * 1000, // 10 minutes
+    gcTime: 10 * 60 * 1000, // 10 minutes (was cacheTime)
   });
 };
 
 export const useProduct = (id: string) => {
-  return useQuery({
+  return useQuery<Product, Error>({
     queryKey: ['product', id],
     queryFn: async () => {
       const wooProduct = await wooCommerce.getProduct(parseInt(id));
@@ -70,12 +70,12 @@ export const useProduct = (id: string) => {
     },
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
-    cacheTime: 10 * 60 * 1000,
+    gcTime: 10 * 60 * 1000, // 10 minutes (was cacheTime)
   });
 };
 
 export const useCategories = () => {
-  return useQuery({
+  return useQuery<Array<{ id: string; name: string; icon: string }>, Error>({
     queryKey: ['categories'],
     queryFn: async () => {
       const wooCategories = await wooCommerce.getCategories();
@@ -86,7 +86,7 @@ export const useCategories = () => {
       }));
     },
     staleTime: 10 * 60 * 1000,
-    cacheTime: 30 * 60 * 1000,
+    gcTime: 30 * 60 * 1000, // 30 minutes (was cacheTime)
   });
 };
 

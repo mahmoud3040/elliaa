@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingCart, Star, Truck, Shield, Headphones, Gift, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import FloatingActionButton from '@/components/FloatingActionButton';
+import ConfigNotice from '@/components/ConfigNotice';
 import { useProducts, useCategories } from '@/hooks/useWooProducts';
 
 const Index = () => {
@@ -20,6 +20,11 @@ const Index = () => {
       <Header />
       
       <main className="flex-1">
+        {/* Config Notice */}
+        <div className="container-rtl py-4">
+          <ConfigNotice />
+        </div>
+
         {/* Hero Section */}
         <section className="relative py-16 md:py-24 overflow-hidden">
           <div className="absolute inset-0 lavender-gradient opacity-10"></div>
