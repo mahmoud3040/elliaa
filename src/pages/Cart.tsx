@@ -47,7 +47,7 @@ const Cart = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-1 py-8">
+      <main className="flex-1 pt-24 bg-background">
         <div className="container-rtl">
           {/* Page Header */}
           <div className="flex items-center justify-between mb-8 animate-fade-in">

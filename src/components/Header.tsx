@@ -72,7 +72,7 @@ const Header = () => {
                 className="w-full h-full object-contain"
               />
             </div>
-            <span className="text-2xl font-bold text-gradient">متجر إيلياء</span>
+            <span className="text-lg font-bold text-gradient">متجر إيلياء</span>
           </Link>
 
           {/* Desktop Navigation */}
