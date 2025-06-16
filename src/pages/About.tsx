@@ -148,8 +148,8 @@ const About = () => {
                   <CardContent className="p-6 space-y-4 px-[24px]">
                     <img src={member.image} alt={member.name} className="w-24 h-24 rounded-full mx-auto object-cover" />
                     <div>
-                      <h3 className="text-xl font-semibold">{member.name}</h3>
-                      <p className="text-muted-foreground">{member.role}</p>
+                      <h3 className="font-semibold text-xl">{member.name}</h3>
+                      
                     </div>
                   </CardContent>
                 </Card>)}
