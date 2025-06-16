@@ -8,21 +8,23 @@ import ProductCard from '@/components/ProductCard';
 import FloatingActionButton from '@/components/FloatingActionButton';
 import ConfigNotice from '@/components/ConfigNotice';
 import { useHomeProducts, useCategories } from '@/hooks/useWooProducts';
-
 const Index = () => {
-  const { data: homeProducts = [], isLoading: homeProductsLoading, error: homeProductsError } = useHomeProducts();
-  const { data: categories = [] } = useCategories();
-  
+  const {
+    data: homeProducts = [],
+    isLoading: homeProductsLoading,
+    error: homeProductsError
+  } = useHomeProducts();
+  const {
+    data: categories = []
+  } = useCategories();
+
   // إضافة console logs لتتبع البيانات
   console.log('🏠 Home products data:', homeProducts);
   console.log('⏳ Home products loading:', homeProductsLoading);
   console.log('❌ Home products error:', homeProductsError);
-  
   const featuredProducts = homeProducts.slice(0, 6);
   console.log('⭐ Featured products (first 6):', featuredProducts);
-
-  return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-lavender-50 via-background to-purple-50">
+  return <div className="min-h-screen flex flex-col bg-gradient-to-br from-lavender-50 via-background to-purple-50">
       <Header />
       
       <main className="flex-1">
@@ -35,7 +37,9 @@ const Index = () => {
         <section className="relative py-16 md:py-24 overflow-hidden">
           <div className="absolute inset-0 lavender-gradient opacity-10"></div>
           <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-br from-primary/20 to-purple-300/20 rounded-full blur-3xl animate-float"></div>
-          <div className="absolute bottom-20 right-10 w-64 h-64 bg-gradient-to-tr from-purple-200/30 to-pink-200/20 rounded-full blur-2xl animate-float" style={{ animationDelay: '1s' }}></div>
+          <div className="absolute bottom-20 right-10 w-64 h-64 bg-gradient-to-tr from-purple-200/30 to-pink-200/20 rounded-full blur-2xl animate-float" style={{
+          animationDelay: '1s'
+        }}></div>
           
           <div className="container-rtl relative z-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
@@ -46,9 +50,7 @@ const Index = () => {
                     <br />
                     <span className="text-foreground">للأدوات المكتبية</span>
                   </h1>
-                  <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">
-                    اكتشف مجموعة واسعة من الأدوات المكتبية والقرطاسية عالية الجودة بأفضل الأسعار مع تجربة تسوق استثنائية
-                  </p>
+                  <p className="text-xl text-muted-foreground max-w-lg leading-relaxed">اكتشف مجموعة واسعة من الأدوات المكتبية عالية الجودة بأفضل الأسعار مع تجربة تسوق استثنائية</p>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -78,9 +80,7 @@ const Index = () => {
                   <div className="text-center">
                     <div className="text-3xl font-bold text-gradient">4.9</div>
                     <div className="flex items-center justify-center mt-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />
-                      ))}
+                      {[...Array(5)].map((_, i) => <Star key={i} className="h-3 w-3 fill-yellow-400 text-yellow-400" />)}
                     </div>
                   </div>
                 </div>
@@ -88,15 +88,13 @@ const Index = () => {
 
               <div className="relative animate-fade-in">
                 <div className="relative z-10">
-                  <img
-                    src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=600&fit=crop"
-                    alt="أدوات مكتبية"
-                    className="rounded-2xl shadow-2xl hover:shadow-3xl transition-shadow duration-500"
-                  />
+                  <img src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=600&fit=crop" alt="أدوات مكتبية" className="rounded-2xl shadow-2xl hover:shadow-3xl transition-shadow duration-500" />
                   <div className="absolute -top-6 -right-6 w-24 h-24 lavender-gradient rounded-2xl flex items-center justify-center shadow-xl animate-float">
                     <Gift className="h-12 w-12 text-white" />
                   </div>
-                  <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl animate-float" style={{ animationDelay: '0.5s' }}>
+                  <div className="absolute -bottom-6 -left-6 w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-xl animate-float" style={{
+                  animationDelay: '0.5s'
+                }}>
                     <Zap className="h-10 w-10 text-white" />
                   </div>
                 </div>
@@ -114,13 +112,9 @@ const Index = () => {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              {categories.map((category, index) => (
-                <Link
-                  key={category.id}
-                  to={`/products?category=${category.id}`}
-                  className="animate-scale-in hover-lift"
-                  style={{ animationDelay: `${index * 0.1}s` }}
-                >
+              {categories.map((category, index) => <Link key={category.id} to={`/products?category=${category.id}`} className="animate-scale-in hover-lift" style={{
+              animationDelay: `${index * 0.1}s`
+            }}>
                   <Card className="text-center p-6 glass-effect hover:shadow-xl transition-all duration-300 group">
                     <CardContent className="p-0 space-y-4">
                       <div className="text-5xl group-hover:scale-110 transition-transform duration-300">
@@ -131,8 +125,7 @@ const Index = () => {
                       </h3>
                     </CardContent>
                   </Card>
-                </Link>
-              ))}
+                </Link>)}
             </div>
           </div>
         </section>
@@ -153,36 +146,24 @@ const Index = () => {
               </Link>
             </div>
 
-            {homeProductsLoading ? (
-              <div className="text-center py-12">
+            {homeProductsLoading ? <div className="text-center py-12">
                 <p className="text-muted-foreground">جاري تحميل المنتجات...</p>
-              </div>
-            ) : homeProductsError ? (
-              <div className="text-center py-12">
+              </div> : homeProductsError ? <div className="text-center py-12">
                 <p className="text-red-500">خطأ في تحميل المنتجات: {homeProductsError.message}</p>
-              </div>
-            ) : featuredProducts.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {featuredProducts.map((product, index) => (
-                  <div
-                    key={product.id}
-                    className="animate-scale-in"
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
+              </div> : featuredProducts.length > 0 ? <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {featuredProducts.map((product, index) => <div key={product.id} className="animate-scale-in" style={{
+              animationDelay: `${index * 0.1}s`
+            }}>
                     <ProductCard {...product} />
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
+                  </div>)}
+              </div> : <div className="text-center py-12">
                 <p className="text-muted-foreground">
                   لا توجد منتجات في فئة "home". قم بإضافة منتجات إلى فئة "home" في ووردبرس لعرضها هنا
                 </p>
                 <p className="text-sm text-muted-foreground mt-2">
                   تأكد من أن الفئة موجودة وتحتوي على منتجات
                 </p>
-              </div>
-            )}
+              </div>}
           </div>
         </section>
 
@@ -205,7 +186,9 @@ const Index = () => {
                 </p>
               </div>
 
-              <div className="text-center space-y-4 animate-scale-in group" style={{ animationDelay: '0.1s' }}>
+              <div className="text-center space-y-4 animate-scale-in group" style={{
+              animationDelay: '0.1s'
+            }}>
                 <div className="w-20 h-20 lavender-gradient rounded-2xl flex items-center justify-center mx-auto shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-110">
                   <Shield className="h-10 w-10 text-white" />
                 </div>
@@ -215,7 +198,9 @@ const Index = () => {
                 </p>
               </div>
 
-              <div className="text-center space-y-4 animate-scale-in group" style={{ animationDelay: '0.2s' }}>
+              <div className="text-center space-y-4 animate-scale-in group" style={{
+              animationDelay: '0.2s'
+            }}>
                 <div className="w-20 h-20 lavender-gradient rounded-2xl flex items-center justify-center mx-auto shadow-xl group-hover:shadow-2xl transition-all duration-300 group-hover:scale-110">
                   <Headphones className="h-10 w-10 text-white" />
                 </div>
@@ -252,8 +237,6 @@ const Index = () => {
 
       <Footer />
       <FloatingActionButton />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
