@@ -57,7 +57,23 @@ export const useProducts = (params?: {
       return wooProducts.map(transformWooProductToProduct);
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
-    gcTime: 10 * 60 * 1000, // 10 minutes (was cacheTime)
+    gcTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+// خطاف جديد للحصول على المنتجات من فئة "home"
+export const useHomeProducts = () => {
+  return useQuery<Product[], Error>({
+    queryKey: ['home-products'],
+    queryFn: async () => {
+      const wooProducts = await wooCommerce.getProducts({
+        per_page: 100,
+        category: 'home', // فلترة بفئة home
+      });
+      return wooProducts.map(transformWooProductToProduct);
+    },
+    staleTime: 5 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 };
 
@@ -70,7 +86,7 @@ export const useProduct = (id: string) => {
     },
     enabled: !!id,
     staleTime: 5 * 60 * 1000,
-    gcTime: 10 * 60 * 1000, // 10 minutes (was cacheTime)
+    gcTime: 10 * 60 * 1000,
   });
 };
 
@@ -79,14 +95,17 @@ export const useCategories = () => {
     queryKey: ['categories'],
     queryFn: async () => {
       const wooCategories = await wooCommerce.getCategories();
-      return wooCategories.map(cat => ({
-        id: cat.slug,
-        name: cat.name,
-        icon: '📁', // يمكنك تخصيص الأيقونات حسب الفئة
-      }));
+      // فلترة فئة "home" من القائمة
+      return wooCategories
+        .filter(cat => cat.slug !== 'home') // إخفاء فئة home
+        .map(cat => ({
+          id: cat.slug,
+          name: cat.name,
+          icon: '📁', // يمكنك تخصيص الأيقونات حسب الفئة
+        }));
     },
     staleTime: 10 * 60 * 1000,
-    gcTime: 30 * 60 * 1000, // 30 minutes (was cacheTime)
+    gcTime: 30 * 60 * 1000,
   });
 };
 

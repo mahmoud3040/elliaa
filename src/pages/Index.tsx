@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { ArrowLeft, ShoppingCart, Star, Truck, Shield, Headphones, Gift, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -7,13 +8,13 @@ import Footer from '@/components/Footer';
 import ProductCard from '@/components/ProductCard';
 import FloatingActionButton from '@/components/FloatingActionButton';
 import ConfigNotice from '@/components/ConfigNotice';
-import { useProducts, useCategories } from '@/hooks/useWooProducts';
+import { useHomeProducts, useCategories } from '@/hooks/useWooProducts';
 
 const Index = () => {
-  const { data: products = [] } = useProducts({ featured: true });
+  const { data: homeProducts = [] } = useHomeProducts(); // استخدام منتجات فئة home
   const { data: categories = [] } = useCategories();
   
-  const featuredProducts = products.slice(0, 6);
+  const featuredProducts = homeProducts.slice(0, 6);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-lavender-50 via-background to-purple-50">
@@ -62,8 +63,8 @@ const Index = () => {
 
                 <div className="grid grid-cols-3 gap-8 pt-8">
                   <div className="text-center">
-                    <div className="text-3xl font-bold text-gradient">{products.length}+</div>
-                    <div className="text-sm text-muted-foreground">منتج</div>
+                    <div className="text-3xl font-bold text-gradient">{homeProducts.length}+</div>
+                    <div className="text-sm text-muted-foreground">منتج مميز</div>
                   </div>
                   <div className="text-center">
                     <div className="text-3xl font-bold text-gradient">1000+</div>
@@ -162,7 +163,7 @@ const Index = () => {
             ) : (
               <div className="text-center py-12">
                 <p className="text-muted-foreground">
-                  تأكد من ضبط رابط ووردبرس لعرض المنتجات
+                  قم بإضافة منتجات إلى فئة "home" في ووردبرس لعرضها هنا
                 </p>
               </div>
             )}
