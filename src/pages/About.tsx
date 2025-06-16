@@ -125,10 +125,8 @@ const About = () => {
         <section className="py-16 bg-background">
           <div className="container-rtl">
             <div className="text-center space-y-4 mb-12 animate-fade-in">
-              <h2 className="text-3xl font-bold">فريق العمل</h2>
-              <p className="text-muted-foreground max-w-2xl mx-auto">
-                نحن فريق شغوف ومتفاني، نعمل معاً لتحقيق رؤيتنا وخدمة عملائنا الكرام
-              </p>
+              <h2 className="text-3xl font-bold">بعض آراء العملاء</h2>
+              <p className="text-muted-foreground max-w-2xl mx-auto">منذ بدايتنا ونحن نهتم بآراء العملاء وتقييمهم لمنتجاتنا</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -147,7 +145,7 @@ const About = () => {
             }].map((member, index) => <Card key={member.name} className="text-center hover-lift animate-scale-in" style={{
               animationDelay: `${index * 0.1}s`
             }}>
-                  <CardContent className="p-6 space-y-4">
+                  <CardContent className="p-6 space-y-4 px-[26px]">
                     <img src={member.image} alt={member.name} className="w-24 h-24 rounded-full mx-auto object-cover" />
                     <div>
                       <h3 className="text-xl font-semibold">{member.name}</h3>
