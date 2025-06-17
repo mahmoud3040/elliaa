@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
 
 export interface CartItem {
   id: string;
@@ -58,23 +57,26 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
       toast({
         title: "تم إضافة المنتج",
-        description: `تم إضافة ${newItem.name} إلى السلة`,
+        description: "تم إضافة المنتج إلى السلة بنجاح",
         action: (
-          <div className="flex gap-2 mt-2">
-            <Link to="cart">
-              <Button variant="outline" className="mr-2">
-                عرض السلة
-              </Button>
-            </Link>
-            <Link to="products">
-              <Button className="btn-primary">
-                متابعة التسوق
-              </Button>
-            </Link>
+          <div className="flex flex-col sm:flex-row gap-2 mt-2">
+            <Button 
+              variant="outline" 
+              className="w-full sm:w-auto"
+              onClick={() => window.location.href = '/cart'}
+            >
+              عرض السلة
+            </Button>
+            <Button 
+              className="btn-primary w-full sm:w-auto"
+              onClick={() => window.location.href = '/products'}
+            >
+              متابعة التسوق
+            </Button>
           </div>
         ),
-        className: "animate-fade-in-slow shadow-2xl border-primary/40 bg-white/90 backdrop-blur-md",
-        duration: 5000, // مدة الظهور 5 ثواني
+        className: "animate-fade-in-slow shadow-2xl border-primary/40 bg-background/90 backdrop-blur-md",
+        duration: 5000,
       });
       return [...prevItems, { ...newItem, quantity: 1 }];
     });
@@ -107,10 +109,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearCart = () => {
     setItems([]);
-    toast({
-      title: "تم إفراغ السلة",
-      description: "تم حذف جميع المنتجات من السلة",
-    });
   };
 
   const getTotalPrice = () => {
