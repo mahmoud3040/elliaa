@@ -15,6 +15,7 @@ import Footer from '@/components/Footer';
 import { useCart } from '@/contexts/CartContext';
 import { useCreateOrder } from '@/hooks/useWooOrders';
 import { wooCommerce } from '@/lib/woocommerce';
+import { getShippingCost } from '@/globalOverrides';
 
 const Checkout = () => {
   const navigate = useNavigate();
@@ -37,7 +38,16 @@ const Checkout = () => {
   const [selectedShippingMethod, setSelectedShippingMethod] = useState<string>("");
 
   const subtotal = getTotalPrice();
-  const shipping = subtotal > 100 ? 0 : 25;
+  const governorate = shippingData.governorate || '';
+  let shipping = 0;
+  let shippingText = 'سيتم تحديد تكلفة الشحن حسب المحافظة';
+  if (subtotal >= 500) {
+    shipping = 0;
+    shippingText = 'مجاني';
+  } else if (governorate) {
+    shipping = getShippingCost(governorate);
+    shippingText = `${shipping} ج.م`;
+  }
   const total = subtotal + shipping;
 
   const governorates = [
@@ -158,11 +168,11 @@ const Checkout = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-1 py-8">
+      <main className="flex-1 py-8 mt-16">
         <div className="container-rtl">
           <div className="mb-8 animate-fade-in">
             <h1 className="text-3xl font-bold">إتمام الطلب</h1>
-            <p className="text-muted-foreground">أكمل بياناتك لإتمام عملية الشراء - سيتم إرسال الطلب إلى ووردبرس</p>
+            <p className="text-muted-foreground">أكمل بياناتك لإتمام عملية الشراء</p>
           </div>
 
           <form onSubmit={handleSubmit}>
@@ -201,7 +211,7 @@ const Checkout = () => {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="email">البريد الإلكتروني</Label>
+                        <Label htmlFor="email">البريد الإلكتروني *</Label>
                         <Input
                           id="email"
                           type="email"
@@ -287,7 +297,7 @@ const Checkout = () => {
                               <div className="flex items-center justify-between">
                                 <div>
                                   <div className="font-medium">{gateway.method_title || gateway.title}</div>
-                                  <div className="text-sm text-muted-foreground">{gateway.method_description || gateway.description}</div>
+                                  
                                 </div>
                                 <div className="text-2xl">{gateway.id.includes('kashier') ? '💳' : '💵'}</div>
                               </div>
@@ -354,8 +364,14 @@ const Checkout = () => {
                     </div>
                     <div className="flex justify-between">
                       <span>الشحن</span>
-                      <span className={shipping === 0 ? 'text-green-600' : ''}>
-                        {shipping === 0 ? 'مجاني' : `${shipping} ج.م`}
+                      <span
+                        className={`
+                          text-sm md:text-base font-medium block
+                          text-[#8B5CF6]
+                          text-end md:text-center whitespace-pre-line
+                        `}
+                      >
+                        {shippingText}
                       </span>
                     </div>
                     <Separator />
@@ -363,26 +379,14 @@ const Checkout = () => {
                       <span>المجموع</span>
                       <span className="text-primary">{total.toFixed(0)} ج.م</span>
                     </div>
-                    <div className="space-y-3 pt-4">
-                      <div className="flex items-center space-x-2 space-x-reverse">
-                        <Checkbox id="terms" required />
-                        <Label htmlFor="terms" className="text-sm">
-                          أوافق على الشروط والأحكام
-                        </Label>
-                      </div>
-                      <div className="bg-blue-50 p-3 rounded-lg text-sm text-blue-800">
-                        <p className="font-medium">📋 سيتم إرسال الطلب إلى:</p>
-                        <p>• لوحة تحكم ووردبرس (WooCommerce)</p>
-                        <p>• يمكنك متابعة وإدارة الطلب من هناك</p>
-                      </div>
-                    </div>
+                    
                     <Button
                       type="submit"
                       size="lg"
                       className="w-full btn-primary"
                       disabled={createOrderMutation.isPending}
                     >
-                      {createOrderMutation.isPending ? 'جاري الإرسال...' : 'تأكيد الطلب وإرسال لووردبرس'}
+                      {createOrderMutation.isPending ? 'جاري الإرسال...' : 'تأكيد الطلب'}
                       {!createOrderMutation.isPending && <ArrowLeft className="h-5 w-5 mr-2" />}
                     </Button>
                     <Link to="/cart" className="block">

@@ -10,7 +10,7 @@ export interface OrderData {
   address: string;
   city: string;
   governorate: string;
-  postalCode: string;
+  billing_secondnumber: string;
   paymentMethod: string;
   items: Array<{
     id: string;
@@ -39,7 +39,7 @@ export const useCreateOrder = () => {
           address_1: orderData.address,
           city: orderData.city,
           state: orderData.governorate,
-          postcode: orderData.postalCode,
+          postcode: orderData.billing_secondnumber,
           country: 'EG',
         },
         shipping: {
@@ -48,7 +48,7 @@ export const useCreateOrder = () => {
           address_1: orderData.address,
           city: orderData.city,
           state: orderData.governorate,
-          postcode: orderData.postalCode,
+          postcode: orderData.billing_secondnumber,
           country: 'EG',
         },
         line_items: orderData.items.map(item => ({

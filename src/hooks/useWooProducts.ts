@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { wooCommerce, WooProduct, WooVariation } from '@/lib/woocommerce';
+import { getProductRating } from '@/globalOverrides';
 
 export interface Product {
   id: string;
@@ -34,7 +35,7 @@ const transformWooProductToProduct = (wooProduct: WooProduct): Product => {
     image: wooProduct.images[0]?.src || '/placeholder.svg',
     images: wooProduct.images.map(img => img.src),
     category: wooProduct.categories[0]?.name || 'منتجات',
-    rating: parseFloat(wooProduct.average_rating) || 4.5,
+    rating: getProductRating(),
     reviewCount: wooProduct.rating_count || 0,
     isNew: wooProduct.featured,
     isOnSale: wooProduct.on_sale,

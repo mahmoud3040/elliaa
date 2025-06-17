@@ -8,6 +8,7 @@ import Footer from '@/components/Footer';
 import Lottie from 'lottie-react';
 import successAnim from '@/assets/success.json';
 import errorAnim from '@/assets/error.json';
+import { getShippingCost } from '@/globalOverrides';
 
 const ThankYou = () => {
   const location = useLocation();
@@ -90,6 +91,9 @@ const ThankYou = () => {
       </div>
     );
   }
+
+  const governorate = shippingData?.governorate || 'القاهرة';
+  const shipping = getShippingCost(governorate);
 
   return (
     <div className="min-h-screen flex flex-col">

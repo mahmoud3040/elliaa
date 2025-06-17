@@ -40,3 +40,34 @@
 .read-the-docs {
   color: #888;
 }
+
+/* Swiper custom navigation styles */
+.swiper-button-next, .swiper-button-prev {
+  width: 48px !important;
+  height: 48px !important;
+  background: rgba(139, 92, 246, 0.12) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.10) !important;
+  transition: all 0.3s cubic-bezier(.4,2,.3,1) !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+}
+.swiper-button-next:after, .swiper-button-prev:after {
+  font-size: 22px !important;
+  color: #8B5CF6 !important;
+  font-weight: bold !important;
+  transition: color 0.3s;
+}
+.swiper-button-next:hover, .swiper-button-prev:hover {
+  background: #8B5CF6 !important;
+  box-shadow: 0 4px 16px #8B5CF6aa !important;
+  transform: scale(1.15) rotate(8deg) !important;
+}
+.swiper-button-next:hover:after, .swiper-button-prev:hover:after {
+  color: #fff !important;
+}
+.swiper-button-disabled {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+}

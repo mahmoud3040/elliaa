@@ -21,6 +21,70 @@ import ProductCard from '@/components/ProductCard';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
 import { useProduct, useProducts, useProductVariations } from '@/hooks/useWooProducts';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import { Navigation, Zoom, Thumbs } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/zoom';
+import 'swiper/css/thumbs';
+
+// Add custom styles for Swiper navigation
+const swiperStyles = `
+  .swiper-button-next,
+  .swiper-button-prev {
+    width: 48px !important;
+    height: 48px !important;
+    background: rgba(139, 92, 246, 0.12) !important; /* لافندر شفاف */
+    border-radius: 50% !important;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.10) !important;
+    transition: all 0.3s cubic-bezier(.4,2,.3,1) !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .swiper-button-next:after,
+  .swiper-button-prev:after {
+    font-size: 22px !important;
+    color: #8B5CF6 !important;
+    font-weight: bold !important;
+    transition: color 0.3s;
+  }
+
+  .swiper-button-next:hover,
+  .swiper-button-prev:hover {
+    background: #8B5CF6 !important;
+    box-shadow: 0 4px 16px #8B5CF6aa !important;
+    transform: scale(1.15) rotate(8deg) !important;
+  }
+
+  .swiper-button-next:hover:after,
+  .swiper-button-prev:hover:after {
+    color: #fff !important;
+  }
+
+  .swiper-button-disabled {
+    opacity: 0.4 !important;
+    cursor: not-allowed !important;
+  }
+
+  .swiper-button-next {
+    right: 10px !important;
+  }
+
+  .swiper-button-prev {
+    left: 10px !important;
+  }
+
+  .thumbs-swiper {
+    margin-top: 1rem !important;
+  }
+
+  .thumbs-swiper .swiper-slide {
+    width: auto !important;
+    flex-shrink: 0 !important;
+  }
+`;
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -34,6 +98,8 @@ const ProductDetail = () => {
   const { data: allProducts = [] } = useProducts();
   const { data: variations = [] } = useProductVariations(id || '');
   const [selectedVariation, setSelectedVariation] = useState(null);
+  const [thumbsSwiper, setThumbsSwiper] = useState(null);
+  const [mainImageFade, setMainImageFade] = useState(false);
 
   const relatedProducts = product ? allProducts.filter(p => 
     p.category === product.category && p.id !== product.id
@@ -271,15 +337,26 @@ const ProductDetail = () => {
             {/* Product Images */}
             <div className="space-y-4 animate-scale-in">
               <div className="relative overflow-hidden rounded-lg border">
-                <img
-                  src={
-                    selectedVariation?.image?.src ||
-                    product.images[selectedImage] ||
-                    product.image
-                  }
-                  alt={product.name}
-                  className="w-full h-96 object-cover"
-                />
+                <Swiper
+                  navigation
+                  zoom
+                  thumbs={{ swiper: thumbsSwiper }}
+                  modules={[Navigation, Zoom, Thumbs]}
+                  className="rounded-xl overflow-hidden"
+                >
+                  {product.images.map((img, idx) => (
+                    <SwiperSlide key={idx}>
+                      <div className={`swiper-zoom-container flex items-center justify-center w-full h-full transition-all duration-300 ${mainImageFade ? 'opacity-0' : 'opacity-100'}`} style={{ minHeight: 300, maxHeight: 400 }}>
+                        <img
+                          src={img}
+                          alt={product.name}
+                          className="w-full h-full object-contain"
+                          style={{ maxHeight: 400 }}
+                        />
+                      </div>
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
                 {product.isNew && (
                   <Badge className="absolute top-4 right-4 bg-green-500">
                     جديد
@@ -292,25 +369,29 @@ const ProductDetail = () => {
                 )}
               </div>
               {/* صور مصغرة */}
-              {product.images.length > 1 && !selectedVariation && (
-                <div className="flex space-x-2 space-x-reverse">
-                  {product.images.map((image, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedImage(index)}
-                      className={`relative w-20 h-20 rounded-lg border-2 overflow-hidden ${
-                        selectedImage === index ? 'border-primary' : 'border-transparent'
-                      }`}
-                    >
-                      <img
-                        src={image}
-                        alt={`${product.name} ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
+              <div className="mt-4 grid grid-cols-4 md:grid-cols-6 gap-2">
+                {product.images.map((img, idx) => (
+                  <div
+                    key={idx}
+                    className={`cursor-pointer rounded-lg overflow-hidden border-2 transition-all duration-200 ${
+                      selectedImage === idx ? 'border-[#8B5CF6]' : 'border-transparent'
+                    }`}
+                    onClick={() => {
+                      setMainImageFade(true);
+                      setTimeout(() => {
+                        setSelectedImage(idx);
+                        setMainImageFade(false);
+                      }, 150);
+                    }}
+                  >
+                    <img
+                      src={img}
+                      alt={`${product.name} - صورة ${idx + 1}`}
+                      className="w-full h-20 object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Product Info */}

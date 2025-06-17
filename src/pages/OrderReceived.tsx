@@ -11,6 +11,7 @@ import successAnim from '@/assets/success.json';
 import errorAnim from '@/assets/error.json';
 import { wooCommerce } from '@/lib/woocommerce';
 import { useCart } from '@/contexts/CartContext';
+import { getShippingCost } from '@/globalOverrides';
 
 const OrderReceived = () => {
   const { orderId } = useParams();
@@ -97,6 +98,10 @@ const OrderReceived = () => {
     statusIcon = <XCircle className="w-8 h-8 text-red-600" />;
     statusAnim = <Lottie animationData={errorAnim} loop={false} />;
   }
+
+  // بعد جلب بيانات الشحن:
+  const governorate = order.shipping?.state || 'القاهرة';
+  const shipping = getShippingCost(governorate);
 
   return (
     <div className="min-h-screen flex flex-col">

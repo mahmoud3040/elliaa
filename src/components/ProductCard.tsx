@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useCart } from '@/contexts/CartContext';
 import { useWishlist } from '@/contexts/WishlistContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProductVariations } from '@/hooks/useWooProducts';
 
 interface ProductCardProps {
@@ -45,9 +45,8 @@ const ProductCard = ({
   const { addToWishlist, removeFromWishlist, isInWishlist } = useWishlist();
   const [selectedImage, setSelectedImage] = useState(image);
   const [selectedColor, setSelectedColor] = useState<string | null>(null);
-
-  // Fetch variations if this is a variable product
   const { data: variations } = useProductVariations(type === 'variable' ? id : '');
+  const [selectedVariation, setSelectedVariation] = useState<string | null>(variations?.[0]?.id.toString() || null);
 
   // Find color attribute if it exists
   const colorAttribute = attributes.find(attr => 
@@ -56,14 +55,22 @@ const ProductCard = ({
     attr.name.toLowerCase() === 'colour'
   );
 
+  useEffect(() => {
+    if (variations && variations.length > 0) {
+      const defaultVariation = variations[0];
+      setSelectedVariation(defaultVariation.id.toString());
+      setSelectedImage(defaultVariation.image?.src || image);
+    }
+  }, [variations, image]);
+
   const handleColorSelect = (color: string) => {
     setSelectedColor(color);
-    // Find the variation with this color
-    const variation = variations?.find(v => 
+    const variation = variations?.find(v =>
       v.attributes.some(attr => attr.option.toLowerCase() === color.toLowerCase())
     );
-    if (variation?.image?.src) {
-      setSelectedImage(variation.image.src);
+    if (variation) {
+      setSelectedVariation(variation.id.toString());
+      setSelectedImage(variation.image?.src || image);
     }
   };
 
@@ -100,19 +107,20 @@ const ProductCard = ({
 
   return (
     <Card className="product-card hover-lift group animate-scale-in relative overflow-hidden">
-      <div className="relative overflow-hidden">
-        <img
-          src={selectedImage}
-          alt={name}
-          className="w-full h-48 object-cover transition-all duration-500 group-hover:scale-110"
-          loading="lazy"
-        />
+      <div className="relative overflow-hidden aspect-[4/3] bg-white">
+  <img
+    src={selectedImage}
+    alt={name}
+    className="absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-110"
+    loading="lazy"
+  />
+
         
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
         {/* Badges */}
-        <div className="absolute top-3 right-3 flex flex-col gap-2">
+        <div className="absolute top-3 right-3 flex flex-col gap-2 z-10">
           {isNew && (
             <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg">
               جديد

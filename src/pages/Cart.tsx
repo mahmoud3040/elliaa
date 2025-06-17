@@ -7,12 +7,22 @@ import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useCart } from '@/contexts/CartContext';
+import { getShippingCost } from '@/globalOverrides';
 
 const Cart = () => {
   const { items, updateQuantity, removeFromCart, getTotalPrice, clearCart } = useCart();
 
   const subtotal = getTotalPrice();
-  const shipping = subtotal > 100 ? 0 : 25;
+  const governorate = undefined; // استبدل هذا بالقيمة الفعلية إذا كانت متاحة
+  let shipping = 0;
+  let shippingText = 'سيتم تحديد تكلفة الشحن حسب المحافظة عند إتمام الطلب';
+  if (subtotal >= 500) {
+    shipping = 0;
+    shippingText = 'مجاني';
+  } else if (governorate) {
+    shipping = getShippingCost(governorate);
+    shippingText = `${shipping} ج.م`;
+  }
   const total = subtotal + shipping;
 
   if (items.length === 0) {
@@ -149,8 +159,14 @@ const Cart = () => {
                   
                   <div className="flex justify-between">
                     <span>الشحن</span>
-                    <span className={shipping === 0 ? 'text-green-600' : ''}>
-                      {shipping === 0 ? 'مجاني' : `${shipping} ج.م`}
+                    <span
+                      className={`
+                        text-sm md:text-base font-medium block
+                        text-[#8B5CF6]
+                        text-end md:text-center whitespace-pre-line
+                      `}
+                    >
+                      {shippingText}
                     </span>
                   </div>
                   

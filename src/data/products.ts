@@ -1,6 +1,8 @@
 // This file is now replaced by WooCommerce API
 // Keeping for backward compatibility during transition
 
+import { getProductRating } from '@/globalOverrides';
+
 export interface Product {
   id: string;
   name: string;
@@ -38,7 +40,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1560166444-7c9ee606f2eb?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTB8fHBlbnxlbnwwfHwwfHx8MA%3D%3D'
     ],
     category: 'الأقلام',
-    rating: 4.8,
+    rating: getProductRating(),
     reviewCount: 125,
     isNew: true,
     isOnSale: false,
@@ -68,7 +70,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1535342371209-4b2f0352074a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGNvbG9yZWQlMjBwZW5jaWxzfGVufDB8fDB8fHww'
     ],
     category: 'الأقلام',
-    rating: 4.5,
+    rating: getProductRating(),
     reviewCount: 89,
     isNew: false,
     isOnSale: true,
@@ -98,7 +100,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1517842645767-c639042777db?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8bm90ZWJvb2t8ZW58MHx8MHx8fDA%3D'
     ],
     category: 'الدفاتر',
-    rating: 4.7,
+    rating: getProductRating(),
     reviewCount: 56,
     isNew: false,
     isOnSale: false,
@@ -129,7 +131,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1596265371388-43edbaadab94?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGVuY2lsJTIwYmFnfGVufDB8fDB8fHww'
     ],
     category: 'الإكسسوارات',
-    rating: 4.3,
+    rating: getProductRating(),
     reviewCount: 42,
     isNew: false,
     isOnSale: true,
@@ -158,7 +160,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1611125832047-1d7ad1e8e48f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTl8fGNhbGN1bGF0b3J8ZW58MHx8MHx8fDA%3D'
     ],
     category: 'أدوات مكتبية',
-    rating: 4.9,
+    rating: getProductRating(),
     reviewCount: 78,
     isNew: true,
     isOnSale: false,
@@ -188,7 +190,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1542879436-58a77e4ad04b?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGZvbGRlcnN8ZW58MHx8MHx8fDA%3D'
     ],
     category: 'أدوات مكتبية',
-    rating: 4.2,
+    rating: getProductRating(),
     reviewCount: 35,
     isNew: false,
     isOnSale: false,
@@ -217,7 +219,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1611080541599-8c6dbde6ed28?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8cnVsZXJ8ZW58MHx8MHx8fDA%3D'
     ],
     category: 'أدوات مكتبية',
-    rating: 4.6,
+    rating: getProductRating(),
     reviewCount: 28,
     isNew: false,
     isOnSale: false,
@@ -247,7 +249,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1517842645767-c639042777db?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8bm90ZWJvb2t8ZW58MHx8MHx8fDA%3D'
     ],
     category: 'أدوات مكتبية',
-    rating: 4.4,
+    rating: getProductRating(),
     reviewCount: 52,
     isNew: false,
     isOnSale: true,
@@ -276,7 +278,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1517842645767-c639042777db?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8bm90ZWJvb2t8ZW58MHx8MHx8fDA%3D'
     ],
     category: 'أدوات مكتبية',
-    rating: 4.1,
+    rating: getProductRating(),
     reviewCount: 47,
     isNew: false,
     isOnSale: false,
@@ -306,7 +308,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1581605405669-fcdf81165afa?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGJhY2twYWNrfGVufDB8fDB8fHww'
     ],
     category: 'الإكسسوارات',
-    rating: 4.7,
+    rating: getProductRating(),
     reviewCount: 63,
     isNew: true,
     isOnSale: true,
@@ -336,7 +338,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTF8fHNrZXRjaCUyMGJvb2t8ZW58MHx8MHx8fDA%3D'
     ],
     category: 'الدفاتر',
-    rating: 4.5,
+    rating: getProductRating(),
     reviewCount: 38,
     isNew: false,
     isOnSale: false,
@@ -365,7 +367,7 @@ export const products: Product[] = [
       'https://images.unsplash.com/photo-1595231712325-9fedecef7575?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdlbCUyMHBlbnN8ZW58MHx8MHx8fDA%3D'
     ],
     category: 'الأقلام',
-    rating: 4.6,
+    rating: getProductRating(),
     reviewCount: 72,
     isNew: true,
     isOnSale: false,
